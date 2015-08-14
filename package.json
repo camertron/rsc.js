@@ -1,0 +1,29 @@
+{
+  "name": "rsc.js",
+  "description": "Javascript implementation of the RSC project (Reasonably Simple Computer)",
+  "homepage": "https://github.com/camertron/rsc.js",
+  "keywords": [
+    "teaching", "emulators", "rsc"
+  ],
+  "contributors": [
+    {"name": "Cameron Dutro", "url": "http://twitter.com/camertron", "email": "camertron@gmail.com"}
+  ],
+  "author": "Cameron Dutro <camertron@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/camertron/rsc.js.git"
+  },
+  "licenses": [{
+    "type": "Apache-2.0",
+    "url": "http://www.apache.org/licenses/LICENSE-2.0"
+  }],
+  "version": "1.0.0",
+  "dependencies": {
+    "jquery": "~2.1"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

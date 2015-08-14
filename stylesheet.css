@@ -1,0 +1,94 @@
+.rsc-container {
+  width: 800px;
+  height: 600px;
+  border: 1px solid #AAA;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.rsc-syntax-error {
+  color: #F00;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.rsc-line-number {
+  color: #555;
+  font-size: 14px;
+}
+
+.rsc-computer-font {
+  font-family: Courier;
+}
+
+.rsc-command-list {
+  margin-top: 15px;
+}
+
+.rsc-command-list h4 {
+  margin-left: 33px;
+}
+
+.rsc-command-list .commands {
+  overflow: hidden;
+}
+
+.rsc-command-list-column {
+  float: left;
+}
+
+.rsc-command-list-item {
+  overflow: hidden;
+  margin-right: 20px;
+}
+
+.rsc-command-list-item .rsc-syntax-error {
+  visibility: hidden;
+  text-align: right;
+  float: left;
+}
+
+.rsc-command-list-item .error .rsc-syntax-error {
+  visibility: visible;
+}
+
+.rsc-command-list-item .rsc-line-number {
+  float: left;
+  width: 25px;
+  margin: 3px 8px 0 0;
+  text-align: right;
+}
+
+.rsc-command-list-item input[type='text'] {
+  width: 75px;
+  height: 25px;
+  padding: 5px;
+  border-left: 1px solid #AAA;
+  border-right: 1px solid #AAA;
+  border-top: 1px solid #AAA;
+  font-size: 15px;
+  color: #888;
+  float: left;
+  outline: none;
+  text-transform: uppercase;
+}
+
+.rsc-command-list-item.error input[type='text'] {
+  border-color: #F00;
+}
+
+.rsc-command-list-item:last-child input[type='text'] {
+  border-bottom: 1px solid #AAA;
+}
+
+.rsc-command-list-item:last-child.error input[type='text'] {
+  border-bottom: 1px solid #F00;
+}
+
+.rsc-error-list {
+  color: #F00;
+  margin-left: 30px;
+  font-family: Helvetica;
+  margin-top: 20px;
+}
