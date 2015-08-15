@@ -2,7 +2,7 @@ class CommandListView
   @template = '''
     <div class='rsc-command-list'>
       <h4 class='rsc-computer-font'>Command List</h4>
-      <div class='commands'></div>
+      <div class='rsc-commands-container'></div>
       <div class='rsc-error-list'></div>
     </div>
   '''
@@ -24,7 +24,7 @@ class CommandListView
     @numColumns = options.numColumns || Rsc.defaultNumColumns
     @numRows = options.numRows || Rsc.defaultNumRows
 
-    commandList = $('.commands', @elem)
+    commandList = $('.rsc-commands-container', @elem)
 
     @columns = for col in [0...@numColumns]
       colElem = $(CommandListView.columnTemplate)

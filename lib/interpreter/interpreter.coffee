@@ -1,4 +1,6 @@
 class Interpreter
+  constructor: (@peripherals) ->
+
   interpret: (commands) ->
     memory = @buildMemory(commands)
     session = new Session()
@@ -8,7 +10,7 @@ class Interpreter
         session.programCounter
       )
 
-      currentInstruction.execute(session, memory)
+      currentInstruction.execute(session, memory, @peripherals)
 
   # protected
 

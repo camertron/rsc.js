@@ -1,0 +1,33 @@
+.rsc-peripherals-container {
+  float: left;
+}
+
+.rsc-peripherals {
+  width: 200px;
+
+  h4 {
+    margin-left: 10px;
+    margin-bottom: 13px;
+  }
+
+  .rsc-peripheral-monitor {
+    .rsc-monitor-output-field {
+      width: 100%;
+      text-align: center;
+      padding-top: 45px;
+      font-size: 30px;
+    }
+  }
+
+  .rsc-peripheral-keyboard {
+    .rsc-error {
+      margin-top: 10px;
+    }
+
+    .rsc-input-field {
+      border: 1px solid $lightGrayColor;
+      margin-left: 5px;
+      margin-top: 10px;
+    }
+  }
+}

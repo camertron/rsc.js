@@ -46,7 +46,7 @@ class Command
 
   checkArgNumericality: ->
     if @arity() > 0
-      if !isNaN(parseFloat(@arg1)) && isFinite(@arg1)
+      if Utils.isNumeric(@arg1)
         true
       else
         @errors.push("The argument following #{@command} must be a number.")

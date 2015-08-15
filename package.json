@@ -21,7 +21,6 @@
   "dependencies": {
     "jquery": "~2.1"
   },
-  "devDependencies": {},
   "optionalDependencies": {},
   "engines": {
     "node": "*"

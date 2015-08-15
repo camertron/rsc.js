@@ -2,7 +2,7 @@ class CommandListItemView
   @template = '''
     <div class='rsc-command-list-item'>
       <div class='rsc-line-number rsc-computer-font'></div>
-      <input type='text' maxlength='7' class='rsc-computer-font' />
+      <input type='text' maxlength='7' class='rsc-input-field rsc-computer-font' />
       <div class='rsc-syntax-error'>×</div>
     </div>
   '''
@@ -18,9 +18,9 @@ class CommandListItemView
 
     @inputField.keydown (e) =>
       if @indicatesNextFieldHighlight(e)
-        @fireIfDefined('onHighlightNextFieldCallback')
+        Events.fireIfDefined(@, 'onHighlightNextFieldCallback')
       else if @indicatesPreviousFieldHighlight(e)
-        @fireIfDefined('onHighlightPreviousFieldCallback')
+        Events.fireIfDefined(@, 'onHighlightPreviousFieldCallback')
 
   focus: ->
     @inputField.focus()
@@ -44,7 +44,7 @@ class CommandListItemView
     else
       @elem.addClass('error')
 
-    @fireIfDefined('onValidateFinishedCallback')
+    Events.fireIfDefined(@, 'onValidateFinishedCallback')
 
   onHighlightNextField: (callback) ->
     @onHighlightNextFieldCallback = callback
@@ -62,6 +62,3 @@ class CommandListItemView
   indicatesPreviousFieldHighlight: (e) ->
     # up arrow
     e.keyCode == 38
-
-  fireIfDefined: (callbackName) ->
-    @[callbackName]() if @[callbackName]?

@@ -1,0 +1,57 @@
+.rsc-command-list {
+  float: left;
+
+  h4 {
+    margin-left: 33px;
+  }
+
+  .rsc-commands-container {
+    overflow: hidden;
+  }
+
+  .rsc-command-list-column {
+    float: left;
+  }
+}
+
+.rsc-command-list-item {
+  overflow: hidden;
+  margin-right: 20px;
+
+  .rsc-syntax-error {
+    visibility: hidden;
+    text-align: right;
+    float: left;
+  }
+
+  .error .rsc-syntax-error {
+    visibility: visible;
+  }
+
+  .rsc-line-number {
+    float: left;
+    width: 25px;
+    margin: 3px 8px 0 0;
+    text-align: right;
+  }
+
+  input[type='text'].rsc-input-field {
+    width: 75px;
+    border-left: 1px solid #AAA;
+    border-right: 1px solid #AAA;
+    border-top: 1px solid #AAA;
+    float: left;
+  }
+
+  &.error input[type='text'] {
+    border-color: #F00;
+  }
+
+  &:last-child input[type='text'] {
+    border-bottom: 1px solid #AAA;
+  }
+
+  &:last-child.error input[type='text'] {
+    border-bottom: 1px solid #F00;
+  }
+}

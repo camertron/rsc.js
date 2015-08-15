@@ -1,0 +1,13 @@
+.rsc-controls-container {
+  float: left;
+}
+
+.rsc-controls {
+  margin-left: 20px;
+
+  input[type='button'] {
+    display: block;
+    width: 120px;
+    margin-bottom: 10px;
+  }
+}
