@@ -1,18 +1,42 @@
 class Interpreter
-  constructor: (@peripherals) ->
+  constructor: (@commands, @peripherals, @session) ->
+    @memory = @buildMemory(@commands)
 
-  interpret: (commands) ->
-    memory = @buildMemory(commands)
-    session = new Session()
+    @peripherals.keyboard.onInputReceived (input) =>
+      if @session.isWaitingForInput()
+        try
+          currentInstruction = @getCurrentInstruction()
+          currentInstruction.resumeWithInput(
+            input, @session, @memory, @peripherals
+          )
 
-    while session.shouldContinue()
-      currentInstruction = memory.getInstructionAtIndex(
-        session.programCounter
-      )
+          Events.fireIfDefined(@, 'onProgramStepCallback')
+        catch e
+          Events.fireIfDefined(@, 'onErrorCallback', e)
 
-      currentInstruction.execute(session, memory, @peripherals)
+  onProgramStep: (callback) ->
+    @onProgramStepCallback = callback
+
+  onProgramStop: (callback) ->
+    @onProgramStopCallback = callback
+
+  onError: (callback) ->
+    @onErrorCallback = callback
 
   # protected
+
+  getCurrentInstruction: ->
+    instruction = @memory.getInstructionAtIndex(
+      @session.programCounter
+    )
+
+    unless instruction?
+      throw new NotExecutableError(
+        "The instruction on line #{@session.programCounter + 1} " +
+          "is not executable."
+      )
+
+    instruction
 
   buildMemory: (commands) ->
     list = for command in commands

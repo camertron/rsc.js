@@ -18,7 +18,7 @@ class CommandListView
     </p>
   '''
 
-  constructor: (@model, options = {}) ->
+  constructor: (options = {}) ->
     @elem = $(CommandListView.template)
     @errorList = $('.rsc-error-list', @elem)
     @numColumns = options.numColumns || Rsc.defaultNumColumns
@@ -64,6 +64,17 @@ class CommandListView
               .replace('%{lineNumber}', lineNumber)
               .replace('%{errorMessage}', error)
           )
+
+  indicateExecutionForLine: (line) ->
+    @eachField (col, row, field) =>
+      if @getFieldIndex(col, row) == line
+        field.showExecutionIndicator()
+      else
+        field.hideIndicator()
+
+  hideExecutionIndicator: ->
+    @eachField (col, row, field) =>
+      field.hideIndicator()
 
   prevColumn: (col, row) ->
     if row == 0
@@ -115,3 +126,21 @@ class CommandListView
 
   getField: (col, row) ->
     @columns[col][row]
+
+  getFieldAtIndex: (index) ->
+    col = Math.floor(index / @numRows)
+    row = index % @numRows
+    @getField(col, row)
+
+  setFieldValueAtIndex: (index, value) ->
+    @getFieldAtIndex(index).inputField.val(value.toFixed(1))
+
+  clearFieldValueAtIndex: (index) ->
+    @getFieldAtIndex(index).inputField.val('')
+
+  reset: ->
+    @hideExecutionIndicator()
+
+  clear: ->
+    @eachField (col, row, field) -> field.clear()
+    @updateErrorList()

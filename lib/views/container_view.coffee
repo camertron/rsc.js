@@ -13,16 +13,16 @@ class ContainerView
     @peripheralsContainer = $('.rsc-peripherals-container', @elem)
     @controlsContainer = $('.rsc-controls-container', @elem)
 
-    @commandList = new CommandListView()
+    @commandList = new CommandListView(options)
     @commandListContainer.append(@commandList.elem)
 
     @peripherals = new PeripheralsView()
     @peripheralsContainer.append(@peripherals.elem)
-    @peripherals.keyboard.onInputReceived (val) ->
 
     @controls = new ControlsView()
     @controlsContainer.append(@controls.elem)
 
-    $('.click-me', @elem).click =>
-      interpreter = new Interpreter(@peripherals)
-      res = interpreter.interpret(@commandList.getCommands())
+  reset: ->
+    @commandList.reset()
+    @controls.reset()
+    @peripherals.reset()

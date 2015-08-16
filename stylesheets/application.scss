@@ -2,10 +2,11 @@ $lightGrayColor: #888;
 $darkGrayColor: #555;
 $redColor: #F00;
 $whiteColor: #FFF;
+$blueColor: #00F;
 
 .rsc-container {
   width: 800px;
-  height: 600px;
+  height: 570px;
   border: 1px solid $lightGrayColor;
   border-radius: 8px;
   padding: 10px;
@@ -16,8 +17,11 @@ $whiteColor: #FFF;
   color: $redColor;
 }
 
-.rsc-syntax-error {
-  color: $redColor;
+.rsc-info {
+  color: $blueColor;
+}
+
+.rsc-indicator {
   font-size: 20px;
   width: 20px;
   height: 20px;
@@ -47,7 +51,7 @@ $whiteColor: #FFF;
 
 .rsc-monitor-image {
   width: 200px;
-  height: 170px;
+  height: 150px;
   background: url('images/monitor.png') no-repeat;
 }
 
@@ -67,7 +71,7 @@ input[type='text'].rsc-input-field {
   padding-right: 15px;
   font-size: 14px;
   border: 1px solid $lightGrayColor;
-  color: $darkGrayColor;
+  color: lighten($darkGrayColor, 15%);
   background-color: $whiteColor;
   text-align: center;
   font-family: Helvetica;
@@ -80,10 +84,16 @@ input[type='text'].rsc-input-field {
 
   &:hover {
     border-color: darken($lightGrayColor, 30%);
+    color: $darkGrayColor;
   }
 
   &:active {
     background-color: darken($whiteColor, 10%);
+  }
+
+  &[disabled] {
+    border-color: lighten($lightGrayColor, 30%);
+    color: lighten($darkGrayColor, 40%);
   }
 }
 

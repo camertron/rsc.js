@@ -14,3 +14,8 @@ class Memory
       location
     else
       null
+
+  eachStorageLocation: (callback) ->
+    for i in [0..@values.length]
+      location = @getStorageLocationAtIndex(i)
+      callback(i, location) if location?

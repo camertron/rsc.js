@@ -7,7 +7,7 @@ class Instruction
   isExecutable: -> true
 
   getLocation: (memory) ->
-    memory.getStorageLocationAtIndex(@command.arg1)
+    memory.getStorageLocationAtIndex(@command.arg1 - 1)
 
 `var Instructions = {}`
 
@@ -36,7 +36,13 @@ class Instructions.STA extends Instruction
 # Input value and store at location m
 class Instructions.INP extends Instruction
   execute: (session, memory, peripherals) ->
-    # @TODO: implement this command
+    session.waitingForInput = true
+    session.continue = false
+
+  resumeWithInput: (input, session, memory, peripherals) ->
+    @getLocation(memory).value = input
+    session.waitingForInput = false
+    session.continue = true
     session.incrementProgramCounter()
 
 # OUT m
@@ -85,14 +91,14 @@ class Instructions.DIV extends Instruction
 # Branch to location m
 class Instructions.BRU extends Instruction
   execute: (session, memory, peripherals) ->
-    session.programCounter = @command.arg1
+    session.programCounter = @command.arg1 - 1
 
 # BPA m
 # Branch to location m if accumulator is positive
 class Instructions.BPA extends Instruction
   execute: (session, memory, peripherals) ->
     if session.accumulator > 0
-      session.programCounter = @command.arg1
+      session.programCounter = @command.arg1 - 1
     else
       session.incrementProgramCounter()
 
@@ -101,7 +107,7 @@ class Instructions.BPA extends Instruction
 class Instructions.BNA extends Instruction
   execute: (session, memory, peripherals) ->
     if session.accumulator < 0
-      session.programCounter = @command.arg1
+      session.programCounter = @command.arg1 - 1
     else
       session.incrementProgramCounter()
 
@@ -110,7 +116,7 @@ class Instructions.BNA extends Instruction
 class Instructions.BZA extends Instruction
   execute: (session, memory, peripherals) ->
     if session.accumulator == 0
-      session.programCounter = @command.arg1
+      session.programCounter = @command.arg1 - 1
     else
       session.incrementProgramCounter()
 
@@ -118,3 +124,5 @@ class Instructions.BZA extends Instruction
 class Instructions.STP extends Instruction
   execute: (session, memory, peripherals) ->
     session.continue = false
+    session.stopped = true
+    session.incrementProgramCounter()

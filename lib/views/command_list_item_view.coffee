@@ -3,14 +3,14 @@ class CommandListItemView
     <div class='rsc-command-list-item'>
       <div class='rsc-line-number rsc-computer-font'></div>
       <input type='text' maxlength='7' class='rsc-input-field rsc-computer-font' />
-      <div class='rsc-syntax-error'>×</div>
+      <div class='rsc-indicator'></div>
     </div>
   '''
 
   constructor: (model) ->
     @elem = $(CommandListItemView.template)
     @lineNumber = $('.rsc-line-number', @elem)
-    @syntaxErrorField = $('.rsc-syntax-error', @elem)
+    @indicator = $('.rsc-indicator', @elem)
     @inputField = $("input[type='text']", @elem)
     @command = model
 
@@ -21,6 +21,26 @@ class CommandListItemView
         Events.fireIfDefined(@, 'onHighlightNextFieldCallback')
       else if @indicatesPreviousFieldHighlight(e)
         Events.fireIfDefined(@, 'onHighlightPreviousFieldCallback')
+
+  showExecutionIndicator: ->
+    @elem.addClass('info')
+
+  showErrorIndicator: ->
+    @elem.addClass('error')
+
+  hideIndicator: ->
+    @elem.removeClass('error info')
+
+  disable: ->
+    @inputField.prop('disabled', true)
+
+  enable: ->
+    @inputField.prop('disabled', false)
+
+  clear: ->
+    @inputField.val('')
+    @command = null
+    @hideIndicator()
 
   focus: ->
     @inputField.focus()
@@ -36,13 +56,10 @@ class CommandListItemView
       @command = Command.parse(@inputField.val())
       valid = @command.isValid()
 
-    visibility = if valid then 'hidden' else 'visible'
-    @syntaxErrorField.css('visibility', visibility)
-
     if valid
-      @elem.removeClass('error')
+      @hideIndicator()
     else
-      @elem.addClass('error')
+      @showErrorIndicator()
 
     Events.fireIfDefined(@, 'onValidateFinishedCallback')
 

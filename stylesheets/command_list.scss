@@ -18,14 +18,26 @@
   overflow: hidden;
   margin-right: 20px;
 
-  .rsc-syntax-error {
+  .rsc-indicator {
     visibility: hidden;
     text-align: right;
     float: left;
   }
 
-  .error .rsc-syntax-error {
-    visibility: visible;
+  &.error {
+    .rsc-indicator {
+      &:before { content: '×'; }
+      visibility: visible;
+      color: $redColor;
+    }
+  }
+
+  &.info {
+    .rsc-indicator {
+      &:before { content: '\02190'; }  // left arrow
+      visibility: visible;
+      color: $blueColor;
+    }
   }
 
   .rsc-line-number {
@@ -44,14 +56,22 @@
   }
 
   &.error input[type='text'] {
-    border-color: #F00;
+    border-color: $redColor;
+  }
+
+  &.info input[type='text'] {
+    border-color: $blueColor;
   }
 
   &:last-child input[type='text'] {
-    border-bottom: 1px solid #AAA;
+    border-bottom: 1px solid $lightGrayColor;
   }
 
   &:last-child.error input[type='text'] {
-    border-bottom: 1px solid #F00;
+    border-bottom: 1px solid $redColor;
+  }
+
+  &:last-child.info input[type='text'] {
+    border-bottom: 1px solid $blueColor;
   }
 }

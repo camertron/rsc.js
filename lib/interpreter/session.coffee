@@ -10,6 +10,9 @@ class Session
     @accumulator = (Math.round(Math.random() * Math.pow(10, 6)) / 100) *
       (if Math.random() > 0.5 then -1 else 1)
 
+    @reset()
+
+  reset: ->
     # When the RSC program is running, this variable holds the last
     # executed line number.
     @programCounter = 0
@@ -19,8 +22,20 @@ class Session
     # occurred.
     @continue = true
 
+    # Set to true if the computer is waiting for keyboard input.
+    @waitingForInput = false
+
+    # Whether or not a STP command has been encountered.
+    @stopped = false
+
   incrementProgramCounter: ->
     @programCounter += 1
 
   shouldContinue: ->
-    @continue
+    @continue && !@stopped
+
+  isWaitingForInput: ->
+    @waitingForInput
+
+  hasStopped: ->
+    @stopped

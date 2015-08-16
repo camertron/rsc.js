@@ -12,7 +12,8 @@ class MonitorView
     @outputField = $('.rsc-monitor-output-field', @elem)
 
   displayValue: (value) ->
-    @outputField.text(value.toFixed(1))
+    if Utils.isNumeric(value)
+      @outputField.text(value.toFixed(1))
 
   reset: ->
     @outputField.text('')
