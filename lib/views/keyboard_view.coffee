@@ -18,6 +18,7 @@ class KeyboardView
       if e.keyCode == 13
         if Utils.isNumeric(@inputField.val())
           Events.fireIfDefined(@, 'onInputReceivedCallback', parseFloat(@inputField.val()))
+          @reset()
           @errorMessage.hide()
         else
           @errorMessage.show()
@@ -25,6 +26,38 @@ class KeyboardView
   onInputReceived: (callback) ->
     @onInputReceivedCallback = callback
 
+  enable: ->
+    @inputField.prop('disabled', false)
+
+  disable: ->
+    @inputField.prop('disabled', true)
+
+  focus: ->
+    @inputField.focus()
+
   reset: ->
     @errorMessage.hide()
+    @hideIndicator()
     @inputField.val('')
+
+  showIndicator: (animate = true) ->
+    if animate
+      cycles = 0
+
+      id = setInterval((=>
+        if @elem.hasClass('info')
+          @elem.removeClass('info')
+        else
+          @elem.addClass('info')
+
+        cycles += 1
+
+        if cycles == 5
+          clearInterval(id)
+          @elem.addClass('info')
+      ), 100)
+    else
+      @elem.addClass('info')
+
+  hideIndicator: ->
+    @elem.removeClass('info')

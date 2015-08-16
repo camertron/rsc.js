@@ -26,7 +26,11 @@ class Rsc
       interpreter.onProgramStop => @resetInterface()
 
       @container.controls.onStepButtonClicked =>
-        if !@session.isWaitingForInput() && @session.shouldContinue()
+        if @session.isWaitingForInput()
+          # display dialog if user tried to click 'Step' while
+          # the system is waiting for input
+          alert('Waiting for input...')
+        else if @session.shouldContinue()
           interpreter.resume()
 
       @container.controls.onStopButtonClicked =>
@@ -48,6 +52,13 @@ class Rsc
     @refreshExecutionLine()
     @refreshAccumulator()
     @refreshMemoryUI(interpreter)
+
+    if @session.isWaitingForInput()
+      @container.peripherals.keyboard.enable()
+      @container.peripherals.keyboard.showIndicator()
+    else
+      @container.peripherals.keyboard.disable()
+      @container.peripherals.keyboard.hideIndicator()
 
   refreshMemoryUI: (interpreter) ->
     # update storage location UI

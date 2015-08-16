@@ -29,7 +29,10 @@
   color: #F00;
   margin-left: 30px;
   font-family: Helvetica;
-  margin-top: 20px; }
+  margin-top: 20px;
+  width: 375px;
+  overflow-y: scroll;
+  height: 100px; }
 
 .rsc-keyboard-image {
   width: 200px;
@@ -74,14 +77,18 @@ input[type='text'].rsc-input-field {
     border-color: #d5d5d5;
     color: #bbbbbb; }
 
-.rsc-command-list {
+.rsc-command-list-container {
+  overflow: hidden;
   float: left; }
-  .rsc-command-list h4 {
-    margin-left: 33px; }
-  .rsc-command-list .rsc-commands-container {
-    overflow: hidden; }
-  .rsc-command-list .rsc-command-list-column {
-    float: left; }
+
+.rsc-command-list h4 {
+  margin-left: 33px; }
+
+.rsc-command-list .rsc-commands-container {
+  overflow: hidden; }
+
+.rsc-command-list .rsc-command-list-column {
+  float: left; }
 
 .rsc-command-list-item {
   overflow: hidden;
@@ -143,6 +150,8 @@ input[type='text'].rsc-input-field {
     text-align: center;
     padding-top: 38px;
     font-size: 30px; }
+  .rsc-peripherals .rsc-peripheral-keyboard.info .rsc-input-field {
+    border: 2px solid #00F; }
   .rsc-peripherals .rsc-peripheral-keyboard .rsc-error {
     margin-top: 10px; }
   .rsc-peripherals .rsc-peripheral-keyboard .rsc-input-field {

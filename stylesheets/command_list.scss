@@ -1,6 +1,9 @@
-.rsc-command-list {
+.rsc-command-list-container {
+  overflow: hidden;
   float: left;
+}
 
+.rsc-command-list {
   h4 {
     margin-left: 33px;
   }

@@ -728,7 +728,9 @@
             return _this.resetInterface();
           });
           _this.container.controls.onStepButtonClicked(function() {
-            if (!_this.session.isWaitingForInput() && _this.session.shouldContinue()) {
+            if (_this.session.isWaitingForInput()) {
+              return alert('Waiting for input...');
+            } else if (_this.session.shouldContinue()) {
               return interpreter.resume();
             }
           });
@@ -757,7 +759,14 @@
     Rsc.prototype.refreshInterface = function(interpreter) {
       this.refreshExecutionLine();
       this.refreshAccumulator();
-      return this.refreshMemoryUI(interpreter);
+      this.refreshMemoryUI(interpreter);
+      if (this.session.isWaitingForInput()) {
+        this.container.peripherals.keyboard.enable();
+        return this.container.peripherals.keyboard.showIndicator();
+      } else {
+        this.container.peripherals.keyboard.disable();
+        return this.container.peripherals.keyboard.hideIndicator();
+      }
     };
 
     Rsc.prototype.refreshMemoryUI = function(interpreter) {
@@ -1284,6 +1293,7 @@
           if (e.keyCode === 13) {
             if (Utils.isNumeric(_this.inputField.val())) {
               Events.fireIfDefined(_this, 'onInputReceivedCallback', parseFloat(_this.inputField.val()));
+              _this.reset();
               return _this.errorMessage.hide();
             } else {
               return _this.errorMessage.show();
@@ -1297,9 +1307,52 @@
       return this.onInputReceivedCallback = callback;
     };
 
+    KeyboardView.prototype.enable = function() {
+      return this.inputField.prop('disabled', false);
+    };
+
+    KeyboardView.prototype.disable = function() {
+      return this.inputField.prop('disabled', true);
+    };
+
+    KeyboardView.prototype.focus = function() {
+      return this.inputField.focus();
+    };
+
     KeyboardView.prototype.reset = function() {
       this.errorMessage.hide();
+      this.hideIndicator();
       return this.inputField.val('');
+    };
+
+    KeyboardView.prototype.showIndicator = function(animate) {
+      var cycles, id;
+      if (animate == null) {
+        animate = true;
+      }
+      if (animate) {
+        cycles = 0;
+        return id = setInterval(((function(_this) {
+          return function() {
+            if (_this.elem.hasClass('info')) {
+              _this.elem.removeClass('info');
+            } else {
+              _this.elem.addClass('info');
+            }
+            cycles += 1;
+            if (cycles === 5) {
+              clearInterval(id);
+              return _this.elem.addClass('info');
+            }
+          };
+        })(this)), 100);
+      } else {
+        return this.elem.addClass('info');
+      }
+    };
+
+    KeyboardView.prototype.hideIndicator = function() {
+      return this.elem.removeClass('info');
     };
 
     return KeyboardView;

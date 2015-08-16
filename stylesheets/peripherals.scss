@@ -30,6 +30,12 @@
   }
 
   .rsc-peripheral-keyboard {
+    &.info {
+      .rsc-input-field {
+        border: 2px solid $blueColor;
+      }
+    }
+
     .rsc-error {
       margin-top: 10px;
     }
