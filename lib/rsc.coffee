@@ -92,12 +92,13 @@ class Rsc
     @container.controls.reset()
 
   handleError: (e) ->
-    if e.constructor == NotExecutableError
-      alert("#{e.message} Program halted.")
-      @resetInterface()
-    else
-      @resetInterface()
-      throw e
+    switch e.constructor
+      when NotExecutableError, NotStorableError, AddressOutOfBoundsError
+        alert("#{e.message} Program halted.")
+        @resetInterface()
+      else
+        @resetInterface()
+        throw e
 
 root = exports ? @
 root.Rsc = Rsc

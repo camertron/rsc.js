@@ -7,7 +7,23 @@ class Instruction
   isExecutable: -> true
 
   getLocation: (memory) ->
-    memory.getStorageLocationAtIndex(@command.arg1 - 1)
+    address = @command.arg1 - 1
+
+    if address >= memory.values.length
+      throw new AddressOutOfBoundsError(
+        "Attempted to access memory address " +
+          "#{@command.arg1}, which doesn't exist."
+      )
+    else
+      location = memory.getStorageLocationAtIndex(address)
+
+      if location
+        location
+      else
+        throw new NotStorableError(
+          "Attempted to write a value to location #{@command.arg1}, " +
+            "which already contains an instruction."
+        )
 
 `var Instructions = {}`
 
@@ -15,6 +31,7 @@ class Instruction
 # Load value from location m into accumulator
 class Instructions.LDA extends Instruction
   execute: (session, memory, peripherals) ->
+    debugger
     session.accumulator = @getLocation(memory).value
     session.incrementProgramCounter()
 
