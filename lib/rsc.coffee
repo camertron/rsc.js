@@ -11,6 +11,14 @@ class Rsc
     @refreshAccumulator()
 
     @container.controls.onRunProgramButtonClicked =>
+      if @container.commandList.getErrors().length > 0
+        alert(
+          'Your program contains one or more syntax errors. ' +
+          'Please fix them before running.'
+        )
+
+        return
+
       @session.reset()
 
       @container.controls.runProgramButton.disable()

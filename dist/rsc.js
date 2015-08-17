@@ -716,6 +716,10 @@
       this.container.controls.onRunProgramButtonClicked((function(_this) {
         return function() {
           var interpreter;
+          if (_this.container.commandList.getErrors().length > 0) {
+            alert('Your program contains one or more syntax errors. ' + 'Please fix them before running.');
+            return;
+          }
           _this.session.reset();
           _this.container.controls.runProgramButton.disable();
           _this.container.controls.clearMemButton.disable();
@@ -1029,6 +1033,19 @@
         };
       })(this));
       return item;
+    };
+
+    CommandListView.prototype.getErrors = function() {
+      var errors;
+      errors = [];
+      this.eachField((function(_this) {
+        return function(col, row, field) {
+          if (field.command != null) {
+            return errors += field.command.errors;
+          }
+        };
+      })(this));
+      return errors;
     };
 
     CommandListView.prototype.updateErrorList = function() {

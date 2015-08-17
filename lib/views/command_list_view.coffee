@@ -52,6 +52,15 @@ class CommandListView
 
     item
 
+  getErrors: ->
+    errors = []
+
+    @eachField (col, row, field) =>
+      if field.command?
+        errors += field.command.errors
+
+    errors
+
   updateErrorList: ->
     @errorList.html('')
 
