@@ -762,6 +762,7 @@
           _this.container.controls.runProgramButton.disable();
           _this.container.controls.clearMemButton.disable();
           _this.container.controls.stopButton.enable();
+          _this.container.commandList.disable();
           interpreter = new SteppingInterpreter(_this.container.commandList.getCommands(), _this.container.peripherals, _this.session);
           interpreter.onProgramStep(function() {
             return _this.refreshInterface(interpreter);
@@ -1225,7 +1226,8 @@
     };
 
     CommandListView.prototype.reset = function() {
-      return this.hideExecutionIndicator();
+      this.hideExecutionIndicator();
+      return this.enable();
     };
 
     CommandListView.prototype.clear = function() {
@@ -1233,6 +1235,18 @@
         return field.clear();
       });
       return this.updateErrorList();
+    };
+
+    CommandListView.prototype.disable = function() {
+      return this.eachField(function(col, row, field) {
+        return field.disable();
+      });
+    };
+
+    CommandListView.prototype.enable = function() {
+      return this.eachField(function(col, row, field) {
+        return field.enable();
+      });
     };
 
     return CommandListView;

@@ -149,7 +149,14 @@ class CommandListView
 
   reset: ->
     @hideExecutionIndicator()
+    @enable()
 
   clear: ->
     @eachField (col, row, field) -> field.clear()
     @updateErrorList()
+
+  disable: ->
+    @eachField (col, row, field) -> field.disable()
+
+  enable: ->
+    @eachField (col, row, field) -> field.enable()

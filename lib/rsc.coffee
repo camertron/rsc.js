@@ -24,6 +24,7 @@ class Rsc
       @container.controls.runProgramButton.disable()
       @container.controls.clearMemButton.disable()
       @container.controls.stopButton.enable()
+      @container.commandList.disable()
 
       interpreter = new SteppingInterpreter(
         @container.commandList.getCommands(),
