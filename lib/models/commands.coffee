@@ -57,14 +57,14 @@ class Commands
     MUL: {
       arity: 1, errors: {
         wrongArity: 'MUL must be given the location of the value to '+
-          'subtract from the accumulator.'
+          'multiply the accumulator by.'
       }
     },
 
     DIV: {
       arity: 1, errors: {
         wrongArity: 'DIV must be given the location of the value to ' +
-          'subtract from the accumulator.'
+          'divide from accumulator by.'
       }
     },
 

@@ -64,6 +64,7 @@ class Rsc
     if @session.isWaitingForInput()
       @container.peripherals.keyboard.enable()
       @container.peripherals.keyboard.showIndicator()
+      @container.peripherals.keyboard.focus()
     else
       @container.peripherals.keyboard.disable()
       @container.peripherals.keyboard.hideIndicator()

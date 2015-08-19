@@ -663,13 +663,13 @@
       MUL: {
         arity: 1,
         errors: {
-          wrongArity: 'MUL must be given the location of the value to ' + 'subtract from the accumulator.'
+          wrongArity: 'MUL must be given the location of the value to ' + 'multiply the accumulator by.'
         }
       },
       DIV: {
         arity: 1,
         errors: {
-          wrongArity: 'DIV must be given the location of the value to ' + 'subtract from the accumulator.'
+          wrongArity: 'DIV must be given the location of the value to ' + 'divide from accumulator by.'
         }
       },
       BRU: {
@@ -804,7 +804,8 @@
       this.refreshMemoryUI(interpreter);
       if (this.session.isWaitingForInput()) {
         this.container.peripherals.keyboard.enable();
-        return this.container.peripherals.keyboard.showIndicator();
+        this.container.peripherals.keyboard.showIndicator();
+        return this.container.peripherals.keyboard.focus();
       } else {
         this.container.peripherals.keyboard.disable();
         return this.container.peripherals.keyboard.hideIndicator();
