@@ -1,6 +1,5 @@
 class Instruction
   @fromCommand = (command) ->
-    # @todo: support all commands
     return new Instructions[command.command](command)
 
   constructor: (@command) ->

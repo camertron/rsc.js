@@ -64,7 +64,6 @@ input[type='text'].rsc-input-field {
   text-align: center;
   font-family: Helvetica;
   outline: none; }
-
 @-moz-document url-prefix() {
   .rsc-button {
     padding-top: 4px; } }
@@ -83,10 +82,8 @@ input[type='text'].rsc-input-field {
 
 .rsc-command-list h4 {
   margin-left: 33px; }
-
 .rsc-command-list .rsc-commands-container {
   overflow: hidden; }
-
 .rsc-command-list .rsc-command-list-column {
   float: left; }
 
