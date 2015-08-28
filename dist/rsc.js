@@ -1,5 +1,5 @@
 (function() {
-  var AccumulatorView, AddressOutOfBoundsError, Button, Command, CommandList, CommandListItemView, CommandListView, Commands, ContainerView, ControlsView, Events, Instruction, Interpreter, KeyboardView, Memory, MonitorView, NotExecutableError, NotStorableError, PeripheralsView, Rsc, Session, SteppingInterpreter, StorageLocation, TestRunner, Utils, root,
+  var AccumulatorView, AddressOutOfBoundsError, Button, Command, CommandList, CommandListItemView, CommandListView, Commands, ContainerView, ControlsView, Events, Instruction, Interpreter, KeyboardView, Memory, MonitorView, NotExecutableError, NotStorableError, PeripheralsView, Rsc, Session, SteppingInterpreter, StorageLocation, TestAccumulator, TestKeyboard, TestMonitor, TestPeripherals, TestRunner, Utils,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty,
     slice = [].slice;
@@ -340,21 +340,6 @@
       this.peripherals = peripherals1;
       this.session = session1;
       this.memory = this.buildMemory(this.commands);
-      this.peripherals.keyboard.onInputReceived((function(_this) {
-        return function(input) {
-          var currentInstruction, e;
-          if (_this.session.isWaitingForInput()) {
-            try {
-              currentInstruction = _this.getCurrentInstruction();
-              currentInstruction.resumeWithInput(input, _this.session, _this.memory, _this.peripherals);
-              return Events.fireIfDefined(_this, 'onProgramStepCallback');
-            } catch (_error) {
-              e = _error;
-              return Events.fireIfDefined(_this, 'onErrorCallback', e);
-            }
-          }
-        };
-      })(this));
     }
 
     Interpreter.prototype.onProgramStep = function(callback) {
@@ -479,8 +464,16 @@
   SteppingInterpreter = (function(superClass) {
     extend(SteppingInterpreter, superClass);
 
-    function SteppingInterpreter() {
-      return SteppingInterpreter.__super__.constructor.apply(this, arguments);
+    function SteppingInterpreter(commands1, peripherals1, session1) {
+      this.commands = commands1;
+      this.peripherals = peripherals1;
+      this.session = session1;
+      SteppingInterpreter.__super__.constructor.call(this, this.commands, this.peripherals, this.session);
+      this.peripherals.keyboard.onInputReceived((function(_this) {
+        return function(input) {
+          return _this.resumeWithInput(input);
+        };
+      })(this));
     }
 
     SteppingInterpreter.prototype.start = function() {};
@@ -497,7 +490,23 @@
         }
       } catch (_error) {
         e = _error;
+        this.session.stopped = true;
         return Events.fireIfDefined(this, 'onErrorCallback', e);
+      }
+    };
+
+    SteppingInterpreter.prototype.resumeWithInput = function(input) {
+      var currentInstruction, e;
+      if (this.session.isWaitingForInput()) {
+        try {
+          currentInstruction = this.getCurrentInstruction();
+          currentInstruction.resumeWithInput(input, this.session, this.memory, this.peripherals);
+          return Events.fireIfDefined(this, 'onProgramStepCallback');
+        } catch (_error) {
+          e = _error;
+          this.session.stopped = true;
+          return Events.fireIfDefined(this, 'onErrorCallback', e);
+        }
       }
     };
 
@@ -639,16 +648,126 @@
 
   })();
 
-  root = typeof exports !== "undefined" && exports !== null ? exports : this;
+  (typeof exports !== "undefined" && exports !== null ? exports : this).Rsc = Rsc;
 
-  root.Rsc = Rsc;
+  TestPeripherals = (function() {
+    function TestPeripherals(session) {
+      this.accumulator = new TestAccumulator(session);
+      this.monitor = new TestMonitor();
+      this.keyboard = new TestKeyboard();
+    }
+
+    return TestPeripherals;
+
+  })();
+
+  TestAccumulator = (function() {
+    function TestAccumulator(session1) {
+      this.session = session1;
+    }
+
+    TestAccumulator.prototype.getValue = function() {
+      return this.session.accumulator;
+    };
+
+    TestAccumulator.prototype.setValue = function(newValue) {
+      return this.session.accumulator = newValue;
+    };
+
+    return TestAccumulator;
+
+  })();
+
+  TestMonitor = (function() {
+    function TestMonitor() {
+      this.value = null;
+    }
+
+    TestMonitor.prototype.displayValue = function(value) {
+      this.value = value;
+      return Events.fireIfDefined(this, 'onValueDisplayedCallback', value);
+    };
+
+    TestMonitor.prototype.onValueDisplayed = function(callback) {
+      return this.onValueDisplayedCallback = callback;
+    };
+
+    return TestMonitor;
+
+  })();
+
+  TestKeyboard = (function() {
+    function TestKeyboard() {}
+
+    TestKeyboard.prototype.onInputReceived = function(callback) {
+      return this.onInputReceivedCallback = callback;
+    };
+
+    return TestKeyboard;
+
+  })();
 
   TestRunner = (function() {
-    function TestRunner(programText) {}
+    function TestRunner(programText) {
+      this.inputs = [];
+      this.outputs = [];
+      this.numberOfOutputs = 0;
+      this.inputCounter = 0;
+      this.commands = this.parseCommandList(programText);
+      this.session = new Session();
+      this.peripherals = new TestPeripherals(this.session);
+      this.interpreter = new SteppingInterpreter(this.commands, this.peripherals, this.session);
+      this.peripherals.monitor.onValueDisplayed((function(_this) {
+        return function(value) {
+          return _this.outputs.push(value);
+        };
+      })(this));
+      this.interpreter.onError(function(e) {
+        return console.log(e.stack);
+      });
+    }
+
+    TestRunner.prototype.setInputs = function(inputs) {
+      this.inputs = inputs;
+    };
+
+    TestRunner.prototype.setNumberOfOutputs = function(numberOfOutputs) {
+      this.numberOfOutputs = numberOfOutputs;
+    };
+
+    TestRunner.prototype.run = function() {
+      var results;
+      results = [];
+      while (!this.session.hasStopped()) {
+        if (this.session.isWaitingForInput()) {
+          results.push(this.interpreter.resumeWithInput(this.getNextInputValue()));
+        } else {
+          results.push(this.interpreter.resume());
+        }
+      }
+      return results;
+    };
+
+    TestRunner.prototype.getNextInputValue = function() {
+      this.inputCounter += 1;
+      return this.inputs[this.inputCounter - 1];
+    };
+
+    TestRunner.prototype.parseCommandList = function(programText) {
+      var commands, totalCommands;
+      commands = CommandList.parse(programText);
+      totalCommands = Rsc.defaultNumColumns * Rsc.defaultNumRows;
+      while (!(commands.length >= totalCommands)) {
+        commands.push(null);
+      }
+      return commands;
+    };
 
     return TestRunner;
 
   })();
+
+  (typeof exports !== "undefined" && exports !== null ? exports : this).TestRunner = TestRunner;
 
   Command = (function() {
     Command.parse = function(text) {
@@ -740,15 +859,15 @@
 
     CommandList.parse = function(text) {
       var chunk, chunks, j, len, ref, results;
-      if (chunk.trim().length > 0) {
-        ref = text.split("\n");
-        results = [];
-        for (j = 0, len = ref.length; j < len; j++) {
-          chunk = ref[j];
+      ref = text.split("\n");
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        chunk = ref[j];
+        if (chunk.trim().length > 0) {
           results.push(chunks = Command.parse(chunk.trim()));
         }
-        return results;
       }
+      return results;
     };
 
     return CommandList;

@@ -2,18 +2,6 @@ class Interpreter
   constructor: (@commands, @peripherals, @session) ->
     @memory = @buildMemory(@commands)
 
-    @peripherals.keyboard.onInputReceived (input) =>
-      if @session.isWaitingForInput()
-        try
-          currentInstruction = @getCurrentInstruction()
-          currentInstruction.resumeWithInput(
-            input, @session, @memory, @peripherals
-          )
-
-          Events.fireIfDefined(@, 'onProgramStepCallback')
-        catch e
-          Events.fireIfDefined(@, 'onErrorCallback', e)
-
   onProgramStep: (callback) ->
     @onProgramStepCallback = callback
 

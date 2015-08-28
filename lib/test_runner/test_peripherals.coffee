@@ -19,6 +19,10 @@ class TestMonitor
 
 	displayValue: (value) ->
 		@value = value
+		Events.fireIfDefined(@, 'onValueDisplayedCallback', value)
+
+	onValueDisplayed: (callback) ->
+		@onValueDisplayedCallback = callback
 
 class TestKeyboard
 	onInputReceived: (callback) ->

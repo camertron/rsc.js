@@ -102,5 +102,4 @@ class Rsc
         @resetInterface()
         throw e
 
-root = exports ? @
-root.Rsc = Rsc
+(exports ? @).Rsc = Rsc
