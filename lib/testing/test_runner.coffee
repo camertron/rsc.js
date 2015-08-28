@@ -1,10 +1,6 @@
 class TestRunner
-  constructor: (programText) ->
-    @inputs = []
-    @outputs = []
-    @numberOfOutputs = 0
+  constructor: (programText, @inputs) ->
     @inputCounter = 0
-
     @commands = @parseCommandList(programText)
     @session = new Session()
     @peripherals = new TestPeripherals(@session)
@@ -12,22 +8,25 @@ class TestRunner
       @commands, @peripherals, @session
     )
 
-    @peripherals.monitor.onValueDisplayed (value) =>
-      @outputs.push(value)
+    @interpreter.onError (e) =>
+      Events.fireIfDefined(this, 'onErrorCallback', e)
 
-    @interpreter.onError (e) ->
-      console.log(e.stack)
-
-  setInputs: (@inputs) ->
-
-  setNumberOfOutputs: (@numberOfOutputs) ->
+  onError: (callback) ->
+    @onErrorCallback = callback
 
   run: ->
+    outputs = []
+
+    @peripherals.monitor.onValueDisplayed (value) ->
+      outputs.push(value)
+
     until @session.hasStopped()
       if @session.isWaitingForInput()
         @interpreter.resumeWithInput(@getNextInputValue())
       else
         @interpreter.resume()
+
+    outputs
 
   getNextInputValue: ->
     @inputCounter += 1
@@ -41,5 +40,3 @@ class TestRunner
       commands.push(null)
 
     commands
-
-(exports ? @).TestRunner = TestRunner

@@ -1,5 +1,5 @@
 {
-  "name": "rsc.js",
+  "name": "rsc",
   "description": "Javascript implementation of the RSC project (Reasonably Simple Computer)",
   "homepage": "https://github.com/camertron/rsc.js",
   "keywords": [
@@ -25,6 +25,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0"
     }
   ],
+  "main": "rsc.js",
   "version": "1.0.0",
   "dependencies": {
     "jquery": "~> 2.1"

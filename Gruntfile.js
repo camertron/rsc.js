@@ -44,12 +44,18 @@ module.exports = function(grunt) {
     },
 
     copy: {
-      main: {
+      dist: {
         files: [{
           expand: true,
           src: ['images/*'],
           dest: 'dist/images/',
           filter: 'isFile'
+        }]
+      },
+      node: {
+        files: [{
+          src: 'dist/rsc.js',
+          dest: './rsc.js'
         }]
       }
     }
