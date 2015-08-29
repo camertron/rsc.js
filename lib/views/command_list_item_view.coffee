@@ -7,12 +7,12 @@ class CommandListItemView
     </div>
   '''
 
-  constructor: (model) ->
+  constructor: (command) ->
     @elem = $(CommandListItemView.template)
     @lineNumber = $('.rsc-line-number', @elem)
     @indicator = $('.rsc-indicator', @elem)
     @inputField = $("input[type='text']", @elem)
-    @command = model
+    @command = command
 
     @inputField.blur => @validate()
 
