@@ -693,7 +693,7 @@
       } else {
         for (idx = j = 0, len = actualOutputs.length; j < len; idx = ++j) {
           actualOutput = actualOutputs[idx];
-          if (Math.abs(actualOutput - this.expectedOutputs[idx]) > 0.1) {
+          if (Math.abs(actualOutput - this.expectedOutputs[idx]) >= 0.1) {
             this.succeeded = false;
           }
         }
