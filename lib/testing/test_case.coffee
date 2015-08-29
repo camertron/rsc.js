@@ -16,7 +16,7 @@ class TestCase
       @succeeded = false
     else
       for actualOutput, idx in actualOutputs
-        if actualOutput != @expectedOutputs[idx]
+        if Math.abs(actualOutput - @expectedOutputs[idx]) > 0.1
           @succeeded = false
 
     unless @succeeded
