@@ -1156,6 +1156,11 @@
             return Events.fireIfDefined(_this, 'onHighlightNextFieldCallback');
           } else if (_this.indicatesPreviousFieldHighlight(e)) {
             return Events.fireIfDefined(_this, 'onHighlightPreviousFieldCallback');
+          } else if (_this.indicatesInsertRow(e)) {
+            return Events.fireIfDefined(_this, 'onInsertRowCallback');
+          } else if (_this.indicatesDeleteRow(e)) {
+            e.preventDefault();
+            return Events.fireIfDefined(_this, 'onDeleteRowCallback');
           }
         };
       })(this));
@@ -1218,16 +1223,34 @@
       return this.onHighlightPreviousFieldCallback = callback;
     };
 
+    CommandListItemView.prototype.onInsertRow = function(callback) {
+      return this.onInsertRowCallback = callback;
+    };
+
+    CommandListItemView.prototype.onDeleteRow = function(callback) {
+      return this.onDeleteRowCallback = callback;
+    };
+
     CommandListItemView.prototype.onValidateFinished = function(callback) {
       return this.onValidateFinishedCallback = callback;
     };
 
     CommandListItemView.prototype.indicatesNextFieldHighlight = function(e) {
-      return e.keyCode === 13 || e.keyCode === 40;
+      return e.keyCode === 40;
     };
 
     CommandListItemView.prototype.indicatesPreviousFieldHighlight = function(e) {
       return e.keyCode === 38;
+    };
+
+    CommandListItemView.prototype.indicatesInsertRow = function(e) {
+      return e.keyCode === 13;
+    };
+
+    CommandListItemView.prototype.indicatesDeleteRow = function(e) {
+      var range;
+      range = this.inputField.textrange();
+      return e.keyCode === 8 && range.start === 0 && range.length === 0;
     };
 
     CommandListItemView.prototype.setValue = function(val) {
@@ -1258,6 +1281,7 @@
       this.errorList = $('.rsc-error-list', this.elem);
       this.numColumns = options.numColumns || Rsc.defaultNumColumns;
       this.numRows = options.numRows || Rsc.defaultNumRows;
+      this.columns = [];
       commandList = $('.rsc-commands-container', this.elem);
       this.columns = (function() {
         var j, ref, results;
@@ -1314,17 +1338,67 @@
           return _this.getField(_this.prevColumn(col, row), _this.prevRow(col, row)).focus();
         };
       })(this));
-      item.onValidateFinished((function(_this) {
+      item.onInsertRow((function(_this) {
         return function() {
-          return _this.updateErrorList();
+          return _this.insertRowAt(col, row);
+        };
+      })(this));
+      item.onDeleteRow((function(_this) {
+        return function() {
+          return _this.deleteRowAt(col, row);
         };
       })(this));
       item.onValidateFinished((function(_this) {
         return function() {
+          _this.updateErrorList();
           return Events.fireIfDefined(_this, 'onItemValidationFinishedCallback', item);
         };
       })(this));
       return item;
+    };
+
+    CommandListView.prototype.insertRowAt = function(col, row) {
+      var cur, endIdx, i, inserted, j, prev, ref, ref1, startIdx;
+      if (this.canInsert()) {
+        startIdx = this.getFieldIndex(col, row);
+        endIdx = this.getFieldCount() - 1;
+        for (i = j = ref = endIdx, ref1 = startIdx; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+          cur = this.getFieldAtIndex(i);
+          prev = this.getFieldAtIndex(i - 1);
+          cur.setValue(prev.inputField.val());
+        }
+        if (startIdx < this.getFieldCount() - 1) {
+          inserted = this.getFieldAtIndex(startIdx + 1);
+          inserted.command = void 0;
+          inserted.setValue('');
+          return inserted.focus();
+        }
+      }
+    };
+
+    CommandListView.prototype.deleteRowAt = function(col, row) {
+      var cur, endIdx, focusIdx, i, j, justMoveCursor, next, ref, ref1, removed, startIdx;
+      startIdx = this.getFieldIndex(col, row) - 1;
+      justMoveCursor = false;
+      if (this.getFieldAtIndex(startIdx + 1).inputField.val() === '') {
+        justMoveCursor = true;
+        startIdx += 1;
+      }
+      if (startIdx >= 0) {
+        endIdx = this.getFieldCount() - 1;
+        for (i = j = ref = startIdx, ref1 = endIdx; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+          cur = this.getFieldAtIndex(i);
+          next = this.getFieldAtIndex(i + 1);
+          cur.setValue(next.inputField.val());
+        }
+        focusIdx = justMoveCursor ? startIdx - 1 : startIdx;
+        removed = this.getFieldAtIndex(focusIdx);
+        return removed.focus();
+      }
+    };
+
+    CommandListView.prototype.canInsert = function() {
+      return this.getField(this.numColumns - 1, this.numRows - 1).command == null;
     };
 
     CommandListView.prototype.onItemValidationFinished = function(callback) {
@@ -1464,10 +1538,19 @@
     };
 
     CommandListView.prototype.getFieldAtIndex = function(index) {
-      var col, row;
-      col = Math.floor(index / this.numRows);
-      row = index % this.numRows;
-      return this.getField(col, row);
+      return this.getField(this.getColAtIndex(index), this.getRowAtIndex(index));
+    };
+
+    CommandListView.prototype.getColAtIndex = function(index) {
+      return Math.floor(index / this.numRows);
+    };
+
+    CommandListView.prototype.getRowAtIndex = function(index) {
+      return index % this.numRows;
+    };
+
+    CommandListView.prototype.getFieldCount = function() {
+      return this.numRows * this.numColumns;
     };
 
     CommandListView.prototype.setFieldValueAtIndex = function(index, value) {

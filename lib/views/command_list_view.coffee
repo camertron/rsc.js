@@ -24,6 +24,7 @@ class CommandListView
     @errorList = $('.rsc-error-list', @elem)
     @numColumns = options.numColumns || Rsc.defaultNumColumns
     @numRows = options.numRows || Rsc.defaultNumRows
+    @columns = []
 
     commandList = $('.rsc-commands-container', @elem)
 
@@ -60,13 +61,56 @@ class CommandListView
     item.onHighlightPreviousField =>
       @getField(@prevColumn(col, row), @prevRow(col, row)).focus()
 
-    item.onValidateFinished =>
-      @updateErrorList()
+    item.onInsertRow => @insertRowAt(col, row)
+    item.onDeleteRow => @deleteRowAt(col, row)
 
     item.onValidateFinished =>
+      @updateErrorList()
       Events.fireIfDefined(@, 'onItemValidationFinishedCallback', item)
 
     item
+
+  insertRowAt: (col, row) ->
+    if @canInsert()
+      startIdx = @getFieldIndex(col, row)
+      endIdx = @getFieldCount() - 1
+
+      for i in [endIdx...startIdx]
+        cur = @getFieldAtIndex(i)
+        prev = @getFieldAtIndex(i - 1)
+        cur.setValue(prev.inputField.val())
+
+      if startIdx < @getFieldCount() - 1
+        inserted = @getFieldAtIndex(startIdx + 1)
+        inserted.command = undefined
+        inserted.setValue('')
+        inserted.focus()
+
+  deleteRowAt: (col, row) ->
+    startIdx = @getFieldIndex(col, row) - 1
+    justMoveCursor = false
+
+    # if the current field is blank, don't replace the one
+    # before it - just move the cursor
+    if @getFieldAtIndex(startIdx + 1).inputField.val() == ''
+      justMoveCursor = true
+      startIdx += 1
+
+    if startIdx >= 0
+      endIdx = @getFieldCount() - 1
+
+      for i in [startIdx...endIdx]
+        cur = @getFieldAtIndex(i)
+        next = @getFieldAtIndex(i + 1)
+        cur.setValue(next.inputField.val())
+
+      focusIdx = if justMoveCursor then startIdx - 1 else startIdx
+      removed = @getFieldAtIndex(focusIdx)
+      removed.focus()
+
+  canInsert: ->
+    # make sure there's a blank line at the end
+    !@getField(@numColumns - 1, @numRows - 1).command?
 
   onItemValidationFinished: (callback) ->
     @onItemValidationFinishedCallback = callback
@@ -156,9 +200,16 @@ class CommandListView
     @columns[col][row]
 
   getFieldAtIndex: (index) ->
-    col = Math.floor(index / @numRows)
-    row = index % @numRows
-    @getField(col, row)
+    @getField(@getColAtIndex(index), @getRowAtIndex(index))
+
+  getColAtIndex: (index) ->
+    Math.floor(index / @numRows)
+
+  getRowAtIndex: (index) ->
+    index % @numRows
+
+  getFieldCount: ->
+    @numRows * @numColumns
 
   setFieldValueAtIndex: (index, value) ->
     @getFieldAtIndex(index).inputField.val(value.toFixed(1))

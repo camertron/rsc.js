@@ -21,6 +21,11 @@ class CommandListItemView
         Events.fireIfDefined(@, 'onHighlightNextFieldCallback')
       else if @indicatesPreviousFieldHighlight(e)
         Events.fireIfDefined(@, 'onHighlightPreviousFieldCallback')
+      else if @indicatesInsertRow(e)
+        Events.fireIfDefined(@, 'onInsertRowCallback')
+      else if @indicatesDeleteRow(e)
+        e.preventDefault()
+        Events.fireIfDefined(@, 'onDeleteRowCallback')
 
   showExecutionIndicator: ->
     @elem.addClass('info')
@@ -69,16 +74,27 @@ class CommandListItemView
   onHighlightPreviousField: (callback) ->
     @onHighlightPreviousFieldCallback = callback
 
+  onInsertRow: (callback) ->
+    @onInsertRowCallback = callback
+
+  onDeleteRow: (callback) ->
+    @onDeleteRowCallback = callback
+
   onValidateFinished: (callback) ->
     @onValidateFinishedCallback = callback
 
   indicatesNextFieldHighlight: (e) ->
-    # enter or down arrow
-    e.keyCode == 13 || e.keyCode == 40
+    e.keyCode == 40  # down arrow
 
   indicatesPreviousFieldHighlight: (e) ->
-    # up arrow
-    e.keyCode == 38
+    e.keyCode == 38  # up arrow
+
+  indicatesInsertRow: (e) ->
+    e.keyCode == 13  # enter key
+
+  indicatesDeleteRow: (e) ->
+    range = @inputField.textrange()
+    e.keyCode == 8 && range.start == 0 && range.length == 0 # && @inputField.val() == ''
 
   setValue: (val) ->
     @inputField.val(val)

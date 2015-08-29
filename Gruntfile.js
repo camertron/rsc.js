@@ -57,6 +57,18 @@ module.exports = function(grunt) {
           src: 'dist/rsc.js',
           dest: './rsc.js'
         }]
+      },
+      node_modules: {
+        files: [{
+          src: 'node_modules/jquery-textrange/jquery-textrange.js',
+          dest: 'dist/vendor/jquery-textrange.js'
+        }, {
+          src: 'node_modules/jquery/dist/jquery.js',
+          dest: 'dist/vendor/jquery.js'
+        }, {
+          src: 'node_modules/jquery/dist/jquery.min.js',
+          dest: 'dist/vendor/jquery.min.js'
+        }]
       }
     }
   });
