@@ -1,9 +1,5 @@
 (function() {
-<<<<<<< HEAD
-  var AccumulatorView, AddressOutOfBoundsError, Button, Command, CommandListItemView, CommandListView, Commands, ContainerView, ControlsView, Events, Instruction, Interpreter, KeyboardView, Memory, MonitorView, NotExecutableError, NotStorableError, PeripheralsView, Rsc, Session, SteppingInterpreter, StorageLocation, Utils,
-=======
   var AccumulatorView, AddressOutOfBoundsError, Button, Command, CommandList, CommandListItemView, CommandListView, Commands, ContainerView, ControlsView, Events, Instruction, Interpreter, KeyboardView, Memory, MonitorView, NotExecutableError, NotStorableError, PeripheralsView, Rsc, Session, SteppingInterpreter, StorageLocation, TestAccumulator, TestCase, TestKeyboard, TestMonitor, TestPeripherals, TestRunner, Utils,
->>>>>>> test_runner
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty,
     slice = [].slice;
@@ -544,6 +540,7 @@
       if (options == null) {
         options = {};
       }
+      options.commands = this.getCommandsFromHash();
       this.container = new ContainerView(options);
       $(selector).replaceWith(this.container.elem);
       this.session = new Session();
@@ -592,6 +589,11 @@
           if (confirm('Are you sure you want to clear the memory? Your program will be erased.')) {
             return _this.container.commandList.clear();
           }
+        };
+      })(this));
+      this.container.commandList.onItemValidationFinished((function(_this) {
+        return function() {
+          return _this.updateUrl();
         };
       })(this));
     }
@@ -645,6 +647,22 @@
         default:
           this.resetInterface();
           throw e;
+      }
+    };
+
+    Rsc.prototype.updateUrl = function() {
+      return typeof window !== "undefined" && window !== null ? window.location.hash = this.container.commandList.toBase64() : void 0;
+    };
+
+    Rsc.prototype.getCommandsFromHash = function() {
+      if ((typeof window !== "undefined" && window !== null ? window.location.hash.length : void 0) > 0) {
+        try {
+          return JSON.parse(atob(window.location.hash.slice(1)));
+        } catch (_error) {
+          return {};
+        }
+      } else {
+        return {};
       }
     };
 
@@ -1058,150 +1076,6 @@
 
   })();
 
-<<<<<<< HEAD
-  Rsc = (function() {
-    Rsc.defaultNumColumns = 3;
-
-    Rsc.defaultNumRows = 15;
-
-    function Rsc(selector, options) {
-      if (options == null) {
-        options = {};
-      }
-      options.commands = this.getCommandsFromHash();
-      this.container = new ContainerView(options);
-      $(selector).replaceWith(this.container.elem);
-      this.session = new Session();
-      this.refreshAccumulator();
-      this.container.controls.onRunProgramButtonClicked((function(_this) {
-        return function() {
-          var interpreter;
-          if (_this.container.commandList.getErrors().length > 0) {
-            alert('Your program contains one or more syntax errors. ' + 'Please fix them before running.');
-            return;
-          }
-          _this.session.reset();
-          _this.container.controls.runProgramButton.disable();
-          _this.container.controls.clearMemButton.disable();
-          _this.container.controls.stopButton.enable();
-          _this.container.commandList.disable();
-          interpreter = new SteppingInterpreter(_this.container.commandList.getCommands(), _this.container.peripherals, _this.session);
-          interpreter.onProgramStep(function() {
-            return _this.refreshInterface(interpreter);
-          });
-          interpreter.onProgramStop(function() {
-            return _this.resetInterface();
-          });
-          _this.container.controls.onStepButtonClicked(function() {
-            if (_this.session.isWaitingForInput()) {
-              return alert('Waiting for input...');
-            } else if (_this.session.shouldContinue()) {
-              return interpreter.resume();
-            }
-          });
-          _this.container.controls.onStopButtonClicked(function() {
-            return _this.resetInterface();
-          });
-          interpreter.onError(function(e) {
-            return _this.handleError(e);
-          });
-          _this.refreshInterface(interpreter);
-          if (interpreter.requiresManualStepping()) {
-            _this.container.controls.stepButton.enable();
-          }
-          return interpreter.start();
-        };
-      })(this));
-      this.container.controls.onClearMemButtonClicked((function(_this) {
-        return function() {
-          if (confirm('Are you sure you want to clear the memory? Your program will be erased.')) {
-            return _this.container.commandList.clear();
-          }
-        };
-      })(this));
-      this.container.commandList.onItemValidationFinished((function(_this) {
-        return function() {
-          return _this.updateUrl();
-        };
-      })(this));
-    }
-
-    Rsc.prototype.refreshInterface = function(interpreter) {
-      this.refreshExecutionLine();
-      this.refreshAccumulator();
-      this.refreshMemoryUI(interpreter);
-      if (this.session.isWaitingForInput()) {
-        this.container.peripherals.keyboard.enable();
-        this.container.peripherals.keyboard.showIndicator();
-        return this.container.peripherals.keyboard.focus();
-      } else {
-        this.container.peripherals.keyboard.disable();
-        return this.container.peripherals.keyboard.hideIndicator();
-      }
-    };
-
-    Rsc.prototype.refreshMemoryUI = function(interpreter) {
-      return interpreter.memory.eachStorageLocation((function(_this) {
-        return function(line, location) {
-          if (Utils.isNumeric(location.value)) {
-            return _this.container.commandList.setFieldValueAtIndex(line, location.value);
-          } else {
-            return _this.container.commandList.clearFieldValueAtIndex(line);
-          }
-        };
-      })(this));
-    };
-
-    Rsc.prototype.refreshExecutionLine = function() {
-      return this.container.commandList.indicateExecutionForLine(this.session.programCounter);
-    };
-
-    Rsc.prototype.refreshAccumulator = function() {
-      return this.container.peripherals.accumulator.setValue(this.session.accumulator);
-    };
-
-    Rsc.prototype.resetInterface = function() {
-      this.container.commandList.reset();
-      return this.container.controls.reset();
-    };
-
-    Rsc.prototype.handleError = function(e) {
-      switch (e.constructor) {
-        case NotExecutableError:
-        case NotStorableError:
-        case AddressOutOfBoundsError:
-          alert(e.message + " Program halted.");
-          return this.resetInterface();
-        default:
-          this.resetInterface();
-          throw e;
-      }
-    };
-
-    Rsc.prototype.updateUrl = function() {
-      return typeof window !== "undefined" && window !== null ? window.location.hash = this.container.commandList.toBase64() : void 0;
-    };
-
-    Rsc.prototype.getCommandsFromHash = function() {
-      if ((typeof window !== "undefined" && window !== null ? window.location.hash.length : void 0) > 0) {
-        try {
-          return JSON.parse(atob(window.location.hash.slice(1)));
-        } catch (_error) {
-          return {};
-        }
-      } else {
-        return {};
-      }
-    };
-
-    return Rsc;
-
-  })();
-
-  (typeof exports !== "undefined" && exports !== null ? exports : this).Rsc = Rsc;
-
-=======
->>>>>>> test_runner
   AccumulatorView = (function() {
     AccumulatorView.template = '<div class=\'rsc-peripheral-accumulator rsc-computer-font\'>\n  Accumulator: <span class=\'rsc-accumulator-value\'></span>\n</div>';
 

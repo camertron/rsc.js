@@ -386,8 +386,8 @@
   })();
 
   Memory = (function() {
-    function Memory(values) {
-      this.values = values;
+    function Memory(values1) {
+      this.values = values1;
     }
 
     Memory.prototype.getInstructionAtIndex = function(index) {
@@ -540,6 +540,7 @@
       if (options == null) {
         options = {};
       }
+      options.commands = this.getCommandsFromHash();
       this.container = new ContainerView(options);
       $(selector).replaceWith(this.container.elem);
       this.session = new Session();
@@ -588,6 +589,11 @@
           if (confirm('Are you sure you want to clear the memory? Your program will be erased.')) {
             return _this.container.commandList.clear();
           }
+        };
+      })(this));
+      this.container.commandList.onItemValidationFinished((function(_this) {
+        return function() {
+          return _this.updateUrl();
         };
       })(this));
     }
@@ -641,6 +647,22 @@
         default:
           this.resetInterface();
           throw e;
+      }
+    };
+
+    Rsc.prototype.updateUrl = function() {
+      return typeof window !== "undefined" && window !== null ? window.location.hash = this.container.commandList.toBase64() : void 0;
+    };
+
+    Rsc.prototype.getCommandsFromHash = function() {
+      if ((typeof window !== "undefined" && window !== null ? window.location.hash.length : void 0) > 0) {
+        try {
+          return JSON.parse(atob(window.location.hash.slice(1)));
+        } catch (_error) {
+          return {};
+        }
+      } else {
+        return {};
       }
     };
 
@@ -894,6 +916,10 @@
 
     Command.prototype.hasValidArity = function() {
       return this.properties.arity === this.arity();
+    };
+
+    Command.prototype.toString = function() {
+      return this.command + (this.arity() === 1 ? " " + this.arg1 : '');
     };
 
     return Command;
@@ -1204,6 +1230,11 @@
       return e.keyCode === 38;
     };
 
+    CommandListItemView.prototype.setValue = function(val) {
+      this.inputField.val(val);
+      return this.validate();
+    };
+
     return CommandListItemView;
 
   })();
@@ -1216,9 +1247,12 @@
     CommandListView.errorMessageTemplate = '<p>\n  <u><strong>Line %{lineNumber}</strong></u>:\n  <span class=\'rsc-computer-font\'>%{errorMessage}</span>\n</p>';
 
     function CommandListView(options) {
-      var col, colElem, commandList, item, row, rowElems;
+      var col, colElem, commandList, initialValue, item, row, rowElems;
       if (options == null) {
         options = {};
+      }
+      if (options.commands == null) {
+        options.commands = {};
       }
       this.elem = $(CommandListView.template);
       this.errorList = $('.rsc-error-list', this.elem);
@@ -1236,6 +1270,10 @@
             for (row = k = 0, ref1 = this.numRows; 0 <= ref1 ? k < ref1 : k > ref1; row = 0 <= ref1 ? ++k : --k) {
               item = this.createListItemAt(col, row);
               item.lineNumber.text(this.getLineNumber(col, row).toString());
+              initialValue = options.commands[this.getFieldIndex(col, row)];
+              if (initialValue != null) {
+                item.setValue(initialValue);
+              }
               colElem.append(item.elem);
               results1.push(item);
             }
@@ -1247,6 +1285,21 @@
         return results;
       }).call(this);
     }
+
+    CommandListView.prototype.toBase64 = function() {
+      var values;
+      values = {};
+      this.eachField((function(_this) {
+        return function(col, row, field) {
+          var idx;
+          if (field.command != null) {
+            idx = _this.getFieldIndex(col, row);
+            return values[idx] = field.command.toString();
+          }
+        };
+      })(this));
+      return btoa(JSON.stringify(values));
+    };
 
     CommandListView.prototype.createListItemAt = function(col, row) {
       var item;
@@ -1266,7 +1319,16 @@
           return _this.updateErrorList();
         };
       })(this));
+      item.onValidateFinished((function(_this) {
+        return function() {
+          return Events.fireIfDefined(_this, 'onItemValidationFinishedCallback', item);
+        };
+      })(this));
       return item;
+    };
+
+    CommandListView.prototype.onItemValidationFinished = function(callback) {
+      return this.onItemValidationFinishedCallback = callback;
     };
 
     CommandListView.prototype.getErrors = function() {
