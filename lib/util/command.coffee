@@ -14,7 +14,12 @@ class Command
 
   constructor: (@command, arg1) ->
     @properties = Commands.get(@command)
-    @arg1 = parseFloat(arg1) if arg1?
+
+    if arg1? && Utils.isNumeric(arg1)
+      @arg1 = parseFloat(arg1)
+    else
+      @arg1 = arg1
+
     @resetErrors()
 
   isValid: ->

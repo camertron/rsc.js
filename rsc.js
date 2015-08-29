@@ -855,8 +855,10 @@
     function Command(command1, arg1) {
       this.command = command1;
       this.properties = Commands.get(this.command);
-      if (arg1 != null) {
+      if ((arg1 != null) && Utils.isNumeric(arg1)) {
         this.arg1 = parseFloat(arg1);
+      } else {
+        this.arg1 = arg1;
       }
       this.resetErrors();
     }
@@ -1379,22 +1381,23 @@
     CommandListView.prototype.deleteRowAt = function(col, row) {
       var cur, endIdx, focusIdx, i, j, justMoveCursor, next, ref, ref1, removed, startIdx;
       startIdx = this.getFieldIndex(col, row) - 1;
+      if (!(startIdx >= 0)) {
+        return;
+      }
       justMoveCursor = false;
       if (this.getFieldAtIndex(startIdx + 1).inputField.val() === '') {
         justMoveCursor = true;
         startIdx += 1;
       }
-      if (startIdx >= 0) {
-        endIdx = this.getFieldCount() - 1;
-        for (i = j = ref = startIdx, ref1 = endIdx; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
-          cur = this.getFieldAtIndex(i);
-          next = this.getFieldAtIndex(i + 1);
-          cur.setValue(next.inputField.val());
-        }
-        focusIdx = justMoveCursor ? startIdx - 1 : startIdx;
-        removed = this.getFieldAtIndex(focusIdx);
-        return removed.focus();
+      endIdx = this.getFieldCount() - 1;
+      for (i = j = ref = startIdx, ref1 = endIdx; ref <= ref1 ? j < ref1 : j > ref1; i = ref <= ref1 ? ++j : --j) {
+        cur = this.getFieldAtIndex(i);
+        next = this.getFieldAtIndex(i + 1);
+        cur.setValue(next.inputField.val());
       }
+      focusIdx = justMoveCursor ? startIdx - 1 : startIdx;
+      removed = this.getFieldAtIndex(focusIdx);
+      return removed.focus();
     };
 
     CommandListView.prototype.canInsert = function() {

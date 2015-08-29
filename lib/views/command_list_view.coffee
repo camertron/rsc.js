@@ -88,6 +88,7 @@ class CommandListView
 
   deleteRowAt: (col, row) ->
     startIdx = @getFieldIndex(col, row) - 1
+    return unless startIdx >= 0
     justMoveCursor = false
 
     # if the current field is blank, don't replace the one
@@ -96,17 +97,16 @@ class CommandListView
       justMoveCursor = true
       startIdx += 1
 
-    if startIdx >= 0
-      endIdx = @getFieldCount() - 1
+    endIdx = @getFieldCount() - 1
 
-      for i in [startIdx...endIdx]
-        cur = @getFieldAtIndex(i)
-        next = @getFieldAtIndex(i + 1)
-        cur.setValue(next.inputField.val())
+    for i in [startIdx...endIdx]
+      cur = @getFieldAtIndex(i)
+      next = @getFieldAtIndex(i + 1)
+      cur.setValue(next.inputField.val())
 
-      focusIdx = if justMoveCursor then startIdx - 1 else startIdx
-      removed = @getFieldAtIndex(focusIdx)
-      removed.focus()
+    focusIdx = if justMoveCursor then startIdx - 1 else startIdx
+    removed = @getFieldAtIndex(focusIdx)
+    removed.focus()
 
   canInsert: ->
     # make sure there's a blank line at the end
