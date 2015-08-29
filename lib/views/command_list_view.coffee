@@ -19,6 +19,7 @@ class CommandListView
   '''
 
   constructor: (options = {}) ->
+    options.commands = {} unless options.commands?
     @elem = $(CommandListView.template)
     @errorList = $('.rsc-error-list', @elem)
     @numColumns = options.numColumns || Rsc.defaultNumColumns
@@ -32,11 +33,23 @@ class CommandListView
       rowElems = for row in [0...@numRows]
         item = @createListItemAt(col, row)
         item.lineNumber.text(@getLineNumber(col, row).toString())
+        initialValue = options.commands[@getFieldIndex(col, row)]
+        item.setValue(initialValue) if initialValue?
         colElem.append(item.elem)
         item
 
       commandList.append(colElem)
       rowElems
+
+  toBase64: ->
+    values = {}
+
+    @eachField (col, row, field) =>
+      if field.command?
+        idx = @getFieldIndex(col, row)
+        values[idx] = field.command.toString()
+
+    btoa(JSON.stringify(values))
 
   createListItemAt: (col, row) ->
     item = new CommandListItemView()
@@ -50,7 +63,13 @@ class CommandListView
     item.onValidateFinished =>
       @updateErrorList()
 
+    item.onValidateFinished =>
+      Events.fireIfDefined(@, 'onItemValidationFinishedCallback', item)
+
     item
+
+  onItemValidationFinished: (callback) ->
+    @onItemValidationFinishedCallback = callback
 
   getErrors: ->
     errors = []

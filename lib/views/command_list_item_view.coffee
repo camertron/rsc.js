@@ -79,3 +79,7 @@ class CommandListItemView
   indicatesPreviousFieldHighlight: (e) ->
     # up arrow
     e.keyCode == 38
+
+  setValue: (val) ->
+    @inputField.val(val)
+    @validate()

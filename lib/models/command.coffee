@@ -59,3 +59,8 @@ class Command
 
   hasValidArity: ->
     @properties.arity == @arity()
+
+  toString: ->
+    @command + (
+      if @arity() == 1 then " #{@arg1}" else ''
+    )

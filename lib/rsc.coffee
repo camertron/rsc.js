@@ -3,6 +3,7 @@ class Rsc
   @defaultNumRows = 15
 
   constructor: (selector, options = {}) ->
+    options.commands = @getCommandsFromHash()
     @container = new ContainerView(options)
     $(selector).replaceWith(@container.elem)
 
@@ -57,6 +58,9 @@ class Rsc
       if confirm('Are you sure you want to clear the memory? Your program will be erased.')
         @container.commandList.clear()
 
+    @container.commandList.onItemValidationFinished =>
+      @updateUrl()
+
   refreshInterface: (interpreter) ->
     @refreshExecutionLine()
     @refreshAccumulator()
@@ -102,5 +106,16 @@ class Rsc
         @resetInterface()
         throw e
 
-root = exports ? @
-root.Rsc = Rsc
+  updateUrl: ->
+    window?.location.hash = @container.commandList.toBase64()
+
+  getCommandsFromHash: ->
+    if window?.location.hash.length > 0
+      try
+        JSON.parse(atob(window.location.hash.slice(1)))
+      catch
+        {}
+    else
+      {}
+
+(exports ? @).Rsc = Rsc
