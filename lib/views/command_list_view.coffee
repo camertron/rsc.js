@@ -193,10 +193,7 @@ class CommandListView
 
   getCommands: ->
     commands = []
-
-    @eachField (col, row, field) ->
-      commands.push(field.command) if field.hasCommand()
-
+    @eachField (col, row, field) -> commands.push(field.command)
     commands
 
   getField: (col, row) ->

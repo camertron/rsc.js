@@ -372,6 +372,8 @@
           command = commands[j];
           if ((command != null ? command.constructor : void 0) === Command) {
             results.push(Instruction.fromCommand(command));
+          } else if ((command != null) && Utils.isNumeric(command)) {
+            results.push(new StorageLocation(command));
           } else {
             results.push(new StorageLocation());
           }
@@ -1538,9 +1540,7 @@
       var commands;
       commands = [];
       this.eachField(function(col, row, field) {
-        if (field.hasCommand()) {
-          return commands.push(field.command);
-        }
+        return commands.push(field.command);
       });
       return commands;
     };

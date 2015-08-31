@@ -30,6 +30,8 @@ class Interpreter
     list = for command in commands
       if command?.constructor == Command
         Instruction.fromCommand(command)
+      else if command? && Utils.isNumeric(command)
+        new StorageLocation(command)
       else
         new StorageLocation()
 
