@@ -589,7 +589,9 @@
       this.container.controls.onClearMemButtonClicked((function(_this) {
         return function() {
           if (confirm('Are you sure you want to clear the memory? Your program will be erased.')) {
-            return _this.container.commandList.clear();
+            _this.container.commandList.clear();
+            debugger;
+            return _this.updateUrl();
           }
         };
       })(this));

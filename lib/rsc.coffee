@@ -57,6 +57,7 @@ class Rsc
     @container.controls.onClearMemButtonClicked =>
       if confirm('Are you sure you want to clear the memory? Your program will be erased.')
         @container.commandList.clear()
+        @updateUrl()
 
     @container.commandList.onItemValidationFinished =>
       @updateUrl()
