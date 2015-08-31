@@ -28,7 +28,7 @@ class Interpreter
 
   buildMemory: (commands) ->
     list = for command in commands
-      if command?
+      if command?.constructor == Command
         Instruction.fromCommand(command)
       else
         new StorageLocation()

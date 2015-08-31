@@ -57,6 +57,8 @@ class CommandListItemView
 
     if val.trim() == ''
       @command = null
+    else if Utils.isNumeric(@inputField.val())
+      @command = parseFloat(@inputField.val())
     else
       @command = Command.parse(@inputField.val())
       valid = @command.isValid()
@@ -99,3 +101,6 @@ class CommandListItemView
   setValue: (val) ->
     @inputField.val(val)
     @validate()
+
+  hasCommand: ->
+    @command?.constructor == Command

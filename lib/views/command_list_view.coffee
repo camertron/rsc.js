@@ -46,7 +46,7 @@ class CommandListView
     values = {}
 
     @eachField (col, row, field) =>
-      if field.command?
+      if field.hasCommand()
         idx = @getFieldIndex(col, row)
         values[idx] = field.command.toString()
 
@@ -110,7 +110,7 @@ class CommandListView
 
   canInsert: ->
     # make sure there's a blank line at the end
-    !@getField(@numColumns - 1, @numRows - 1).command?
+    !@getField(@numColumns - 1, @numRows - 1).hasCommand()
 
   onItemValidationFinished: (callback) ->
     @onItemValidationFinishedCallback = callback
@@ -119,7 +119,7 @@ class CommandListView
     errors = []
 
     @eachField (col, row, field) =>
-      if field.command?
+      if field.hasCommand()
         errors += field.command.errors
 
     errors
@@ -128,7 +128,7 @@ class CommandListView
     @errorList.html('')
 
     @eachField (col, row, field) =>
-      if field.command?
+      if field.hasCommand()
         for error in field.command.errors
           lineNumber = @getLineNumber(col, row)
           @errorList.append(
@@ -193,7 +193,10 @@ class CommandListView
 
   getCommands: ->
     commands = []
-    @eachField (col, row, field) -> commands.push(field.command)
+
+    @eachField (col, row, field) ->
+      commands.push(field.command) if field.hasCommand()
+
     commands
 
   getField: (col, row) ->

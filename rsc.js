@@ -370,7 +370,7 @@
         results = [];
         for (j = 0, len = commands.length; j < len; j++) {
           command = commands[j];
-          if (command != null) {
+          if ((command != null ? command.constructor : void 0) === Command) {
             results.push(Instruction.fromCommand(command));
           } else {
             results.push(new StorageLocation());
@@ -1205,6 +1205,8 @@
       valid = true;
       if (val.trim() === '') {
         this.command = null;
+      } else if (Utils.isNumeric(this.inputField.val())) {
+        this.command = parseFloat(this.inputField.val());
       } else {
         this.command = Command.parse(this.inputField.val());
         valid = this.command.isValid();
@@ -1258,6 +1260,11 @@
     CommandListItemView.prototype.setValue = function(val) {
       this.inputField.val(val);
       return this.validate();
+    };
+
+    CommandListItemView.prototype.hasCommand = function() {
+      var ref;
+      return ((ref = this.command) != null ? ref.constructor : void 0) === Command;
     };
 
     return CommandListItemView;
@@ -1318,7 +1325,7 @@
       this.eachField((function(_this) {
         return function(col, row, field) {
           var idx;
-          if (field.command != null) {
+          if (field.hasCommand()) {
             idx = _this.getFieldIndex(col, row);
             return values[idx] = field.command.toString();
           }
@@ -1401,7 +1408,7 @@
     };
 
     CommandListView.prototype.canInsert = function() {
-      return this.getField(this.numColumns - 1, this.numRows - 1).command == null;
+      return !this.getField(this.numColumns - 1, this.numRows - 1).hasCommand();
     };
 
     CommandListView.prototype.onItemValidationFinished = function(callback) {
@@ -1413,7 +1420,7 @@
       errors = [];
       this.eachField((function(_this) {
         return function(col, row, field) {
-          if (field.command != null) {
+          if (field.hasCommand()) {
             return errors += field.command.errors;
           }
         };
@@ -1426,7 +1433,7 @@
       return this.eachField((function(_this) {
         return function(col, row, field) {
           var error, j, len, lineNumber, ref, results;
-          if (field.command != null) {
+          if (field.hasCommand()) {
             ref = field.command.errors;
             results = [];
             for (j = 0, len = ref.length; j < len; j++) {
@@ -1531,7 +1538,9 @@
       var commands;
       commands = [];
       this.eachField(function(col, row, field) {
-        return commands.push(field.command);
+        if (field.hasCommand()) {
+          return commands.push(field.command);
+        }
       });
       return commands;
     };
