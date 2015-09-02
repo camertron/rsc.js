@@ -13,16 +13,30 @@ class Instruction
         "Attempted to access memory address " +
           "#{@command.arg1}, which doesn't exist."
       )
-    else
-      location = memory.getStorageLocationAtIndex(address)
 
-      if location
-        location
-      else
-        throw new NotStorableError(
-          "Attempted to write a value to location #{@command.arg1}, " +
-            "which already contains an instruction."
-        )
+    location = memory.getStorageLocationAtIndex(address)
+
+    unless location
+      throw new NotStorableError(
+        "Attempted to store a value in location #{@command.arg1}, " +
+          "which contains an instruction."
+      )
+
+    location
+
+  readLocation: (memory) ->
+    location = @getLocation(memory)
+
+    unless location.value?
+      throw new NotStorableError(
+        "Attempted to read the value of location #{@command.arg1}, " +
+          "which doesn't contain a value."
+      )
+
+    location.value
+
+  writeLocation: (memory, value) ->
+    @getLocation(memory).value = value
 
 `var Instructions = {}`
 
@@ -30,7 +44,7 @@ class Instruction
 # Load value from location m into accumulator
 class Instructions.LDA extends Instruction
   execute: (session, memory, peripherals) ->
-    session.accumulator = @getLocation(memory).value
+    session.accumulator = @readLocation(memory)
     session.incrementProgramCounter()
 
 # LDC i
@@ -44,7 +58,7 @@ class Instructions.LDC extends Instruction
 # Store accumulator at location m
 class Instructions.STA extends Instruction
   execute: (session, memory, peripherals) ->
-    @getLocation(memory).value = session.accumulator
+    @writeLocation(memory, session.accumulator)
     session.incrementProgramCounter()
 
 # INP m
@@ -55,7 +69,7 @@ class Instructions.INP extends Instruction
     session.continue = false
 
   resumeWithInput: (input, session, memory, peripherals) ->
-    @getLocation(memory).value = input
+    @writeLocation(memory, input)
     session.waitingForInput = false
     session.continue = true
     session.incrementProgramCounter()
@@ -64,7 +78,7 @@ class Instructions.INP extends Instruction
 # Output value from location m
 class Instructions.OUT extends Instruction
   execute: (session, memory, peripherals) ->
-    peripherals.monitor.displayValue(@getLocation(memory).value)
+    peripherals.monitor.displayValue(@readLocation(memory))
     session.incrementProgramCounter()
 
 # ADC i
@@ -78,28 +92,28 @@ class Instructions.ADC extends Instruction
 # Add value from location m to accumulator
 class Instructions.ADD extends Instruction
   execute: (session, memory, peripherals) ->
-    session.accumulator += @getLocation(memory).value
+    session.accumulator += @readLocation(memory)
     session.incrementProgramCounter()
 
 # SUB m
 # Subtract value from location m from accumulator
 class Instructions.SUB extends Instruction
   execute: (session, memory, peripherals) ->
-    session.accumulator -= @getLocation(memory).value
+    session.accumulator -= @readLocation(memory)
     session.incrementProgramCounter()
 
 # MUL m
 # Multiply accumulator by value in location m
 class Instructions.MUL extends Instruction
   execute: (session, memory, peripherals) ->
-    session.accumulator *= @getLocation(memory).value
+    session.accumulator *= @readLocation(memory)
     session.incrementProgramCounter()
 
 # DIV m
 # Divide accumulator by value in location m
 class Instructions.DIV extends Instruction
   execute: (session, memory, peripherals) ->
-    session.accumulator /= @getLocation(memory).value
+    session.accumulator /= @readLocation(memory)
     session.incrementProgramCounter()
 
 # BRU m

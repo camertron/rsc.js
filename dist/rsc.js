@@ -61,14 +61,25 @@
       address = this.command.arg1 - 1;
       if (address >= memory.values.length) {
         throw new AddressOutOfBoundsError("Attempted to access memory address " + (this.command.arg1 + ", which doesn't exist."));
-      } else {
-        location = memory.getStorageLocationAtIndex(address);
-        if (location) {
-          return location;
-        } else {
-          throw new NotStorableError(("Attempted to write a value to location " + this.command.arg1 + ", ") + "which already contains an instruction.");
-        }
       }
+      location = memory.getStorageLocationAtIndex(address);
+      if (!location) {
+        throw new NotStorableError(("Attempted to store a value in location " + this.command.arg1 + ", ") + "which contains an instruction.");
+      }
+      return location;
+    };
+
+    Instruction.prototype.readLocation = function(memory) {
+      var location;
+      location = this.getLocation(memory);
+      if (location.value == null) {
+        throw new NotStorableError(("Attempted to read the value of location " + this.command.arg1 + ", ") + "which doesn't contain a value.");
+      }
+      return location.value;
+    };
+
+    Instruction.prototype.writeLocation = function(memory, value) {
+      return this.getLocation(memory).value = value;
     };
 
     return Instruction;
@@ -85,7 +96,7 @@
     }
 
     LDA.prototype.execute = function(session, memory, peripherals) {
-      session.accumulator = this.getLocation(memory).value;
+      session.accumulator = this.readLocation(memory);
       return session.incrementProgramCounter();
     };
 
@@ -117,7 +128,7 @@
     }
 
     STA.prototype.execute = function(session, memory, peripherals) {
-      this.getLocation(memory).value = session.accumulator;
+      this.writeLocation(memory, session.accumulator);
       return session.incrementProgramCounter();
     };
 
@@ -138,7 +149,7 @@
     };
 
     INP.prototype.resumeWithInput = function(input, session, memory, peripherals) {
-      this.getLocation(memory).value = input;
+      this.writeLocation(memory, input);
       session.waitingForInput = false;
       session["continue"] = true;
       return session.incrementProgramCounter();
@@ -156,7 +167,7 @@
     }
 
     OUT.prototype.execute = function(session, memory, peripherals) {
-      peripherals.monitor.displayValue(this.getLocation(memory).value);
+      peripherals.monitor.displayValue(this.readLocation(memory));
       return session.incrementProgramCounter();
     };
 
@@ -188,7 +199,7 @@
     }
 
     ADD.prototype.execute = function(session, memory, peripherals) {
-      session.accumulator += this.getLocation(memory).value;
+      session.accumulator += this.readLocation(memory);
       return session.incrementProgramCounter();
     };
 
@@ -204,7 +215,7 @@
     }
 
     SUB.prototype.execute = function(session, memory, peripherals) {
-      session.accumulator -= this.getLocation(memory).value;
+      session.accumulator -= this.readLocation(memory);
       return session.incrementProgramCounter();
     };
 
@@ -220,7 +231,7 @@
     }
 
     MUL.prototype.execute = function(session, memory, peripherals) {
-      session.accumulator *= this.getLocation(memory).value;
+      session.accumulator *= this.readLocation(memory);
       return session.incrementProgramCounter();
     };
 
@@ -236,7 +247,7 @@
     }
 
     DIV.prototype.execute = function(session, memory, peripherals) {
-      session.accumulator /= this.getLocation(memory).value;
+      session.accumulator /= this.readLocation(memory);
       return session.incrementProgramCounter();
     };
 
