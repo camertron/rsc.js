@@ -85,7 +85,6 @@
     }
 
     LDA.prototype.execute = function(session, memory, peripherals) {
-      debugger;
       session.accumulator = this.getLocation(memory).value;
       return session.incrementProgramCounter();
     };
@@ -590,7 +589,6 @@
         return function() {
           if (confirm('Are you sure you want to clear the memory? Your program will be erased.')) {
             _this.container.commandList.clear();
-            debugger;
             return _this.updateUrl();
           }
         };

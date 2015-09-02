@@ -30,7 +30,6 @@ class Instruction
 # Load value from location m into accumulator
 class Instructions.LDA extends Instruction
   execute: (session, memory, peripherals) ->
-    debugger
     session.accumulator = @getLocation(memory).value
     session.incrementProgramCounter()
 
