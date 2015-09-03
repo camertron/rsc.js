@@ -9,19 +9,27 @@ class TestCase
     @testFunc(@)
 
     @succeeded = true
+    @errored = false
     runner = new TestRunner(@program, @inputs)
+
+    runner.onError (e) =>
+      @message = "Error: #{e.message}"
+      @succeeded = false
+      @errored = true
+
     actualOutputs = runner.run()
 
-    if actualOutputs.length != @expectedOutputs.length
-      @succeeded = false
-    else
-      for actualOutput, idx in actualOutputs
-        if Math.abs(actualOutput - @expectedOutputs[idx]) >= 0.1
-          @succeeded = false
+    unless @errored
+      if actualOutputs.length != @expectedOutputs.length
+        @succeeded = false
+      else
+        for actualOutput, idx in actualOutputs
+          if Math.abs(actualOutput - @expectedOutputs[idx]) >= 0.1
+            @succeeded = false
 
-    unless @succeeded
-      @message = "Expected #{JSON.stringify(actualOutputs)} " +
-        "to match #{JSON.stringify(@expectedOutputs)}"
+      unless @succeeded
+        @message = "Expected #{JSON.stringify(actualOutputs)} " +
+          "to match #{JSON.stringify(@expectedOutputs)}"
 
   setInputs: (@inputs) ->
 

@@ -699,20 +699,30 @@
       var actualOutput, actualOutputs, idx, j, len, runner;
       this.testFunc(this);
       this.succeeded = true;
+      this.errored = false;
       runner = new TestRunner(this.program, this.inputs);
+      runner.onError((function(_this) {
+        return function(e) {
+          _this.message = "Error: " + e.message;
+          _this.succeeded = false;
+          return _this.errored = true;
+        };
+      })(this));
       actualOutputs = runner.run();
-      if (actualOutputs.length !== this.expectedOutputs.length) {
-        this.succeeded = false;
-      } else {
-        for (idx = j = 0, len = actualOutputs.length; j < len; idx = ++j) {
-          actualOutput = actualOutputs[idx];
-          if (Math.abs(actualOutput - this.expectedOutputs[idx]) >= 0.1) {
-            this.succeeded = false;
+      if (!this.errored) {
+        if (actualOutputs.length !== this.expectedOutputs.length) {
+          this.succeeded = false;
+        } else {
+          for (idx = j = 0, len = actualOutputs.length; j < len; idx = ++j) {
+            actualOutput = actualOutputs[idx];
+            if (Math.abs(actualOutput - this.expectedOutputs[idx]) >= 0.1) {
+              this.succeeded = false;
+            }
           }
         }
-      }
-      if (!this.succeeded) {
-        return this.message = ("Expected " + (JSON.stringify(actualOutputs)) + " ") + ("to match " + (JSON.stringify(this.expectedOutputs)));
+        if (!this.succeeded) {
+          return this.message = ("Expected " + (JSON.stringify(actualOutputs)) + " ") + ("to match " + (JSON.stringify(this.expectedOutputs)));
+        }
       }
     };
 
@@ -945,13 +955,15 @@
     function CommandList() {}
 
     CommandList.parse = function(text) {
-      var chunk, chunks, j, len, ref, results;
+      var chunk, j, len, ref, results;
       ref = text.split("\n");
       results = [];
       for (j = 0, len = ref.length; j < len; j++) {
         chunk = ref[j];
         if (chunk.trim().length > 0) {
-          results.push(chunks = Command.parse(chunk.trim()));
+          results.push(Command.parse(chunk.trim()));
+        } else {
+          results.push(null);
         }
       }
       return results;
