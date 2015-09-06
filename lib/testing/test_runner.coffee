@@ -1,4 +1,6 @@
 class TestRunner
+  @TIMEOUT = 2000  # 2 seconds (in milliseconds)
+
   constructor: (programText, @inputs) ->
     @inputCounter = 0
     @commands = @parseCommandList(programText)
@@ -16,17 +18,29 @@ class TestRunner
 
   run: ->
     outputs = []
+    startTime = new Date()
+    timeout = false
+
+    counter = 1
 
     @peripherals.monitor.onValueDisplayed (value) ->
       outputs.push(value)
 
-    until @session.hasStopped()
+    until @session.hasStopped() || timeout
       if @session.isWaitingForInput()
         @interpreter.resumeWithInput(@getNextInputValue())
       else
         @interpreter.resume()
 
-    outputs
+      currentTime = new Date()
+      timeout = (currentTime - startTime) >= TestRunner.TIMEOUT
+
+    if timeout
+      e = new ExecutionTimeoutError('Timeout! Code took too long to execute.')
+      Events.fireIfDefined(this, 'onErrorCallback', e)
+      []
+    else
+      outputs
 
   getNextInputValue: ->
     @inputCounter += 1

@@ -21,3 +21,10 @@ class AddressOutOfBoundsError extends Error
     @name = 'AddressOutOfBoundsError'
     @message = message
     @stack = (new Error()).stack
+
+# Indicates an RSC program has taken too long to execute.
+class ExecutionTimeoutError extends Error
+  constructor: (message) ->
+    @name = 'ExecutionTimeoutError'
+    @message = message
+    @stack = (new Error()).stack

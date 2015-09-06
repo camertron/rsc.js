@@ -1,5 +1,5 @@
 (function() {
-  var AccumulatorView, AddressOutOfBoundsError, Button, Command, CommandList, CommandListItemView, CommandListView, Commands, ContainerView, ControlsView, Events, Instruction, Interpreter, KeyboardView, Memory, MonitorView, NotExecutableError, NotStorableError, PeripheralsView, Rsc, Session, SteppingInterpreter, StorageLocation, TestAccumulator, TestCase, TestKeyboard, TestMonitor, TestPeripherals, TestRunner, Utils,
+  var AccumulatorView, AddressOutOfBoundsError, Button, Command, CommandList, CommandListItemView, CommandListView, Commands, ContainerView, ControlsView, Events, ExecutionTimeoutError, Instruction, Interpreter, KeyboardView, Memory, MonitorView, NotExecutableError, NotStorableError, PeripheralsView, Rsc, Session, SteppingInterpreter, StorageLocation, TestAccumulator, TestCase, TestKeyboard, TestMonitor, TestPeripherals, TestRunner, Utils,
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty,
     slice = [].slice;
@@ -40,6 +40,19 @@
     }
 
     return AddressOutOfBoundsError;
+
+  })(Error);
+
+  ExecutionTimeoutError = (function(superClass) {
+    extend(ExecutionTimeoutError, superClass);
+
+    function ExecutionTimeoutError(message) {
+      this.name = 'ExecutionTimeoutError';
+      this.message = message;
+      this.stack = (new Error()).stack;
+    }
+
+    return ExecutionTimeoutError;
 
   })(Error);
 
@@ -807,6 +820,8 @@
   })();
 
   TestRunner = (function() {
+    TestRunner.TIMEOUT = 2000;
+
     function TestRunner(programText, inputs) {
       this.inputs = inputs;
       this.inputCounter = 0;
@@ -826,19 +841,30 @@
     };
 
     TestRunner.prototype.run = function() {
-      var outputs;
+      var counter, currentTime, e, outputs, startTime, timeout;
       outputs = [];
+      startTime = new Date();
+      timeout = false;
+      counter = 1;
       this.peripherals.monitor.onValueDisplayed(function(value) {
         return outputs.push(value);
       });
-      while (!this.session.hasStopped()) {
+      while (!(this.session.hasStopped() || timeout)) {
         if (this.session.isWaitingForInput()) {
           this.interpreter.resumeWithInput(this.getNextInputValue());
         } else {
           this.interpreter.resume();
         }
+        currentTime = new Date();
+        timeout = (currentTime - startTime) >= TestRunner.TIMEOUT;
       }
-      return outputs;
+      if (timeout) {
+        e = new ExecutionTimeoutError('Timeout! Code took too long to execute.');
+        Events.fireIfDefined(this, 'onErrorCallback', e);
+        return [];
+      } else {
+        return outputs;
+      }
     };
 
     TestRunner.prototype.getNextInputValue = function() {
