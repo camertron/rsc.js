@@ -2,6 +2,7 @@ class TestCase
   constructor: (@program, @testFunc) ->
     @inputs = []
     @expectedOutputs = []
+    @actualOutputs = null
     @succeeded = undefined
     @message = ''
 
@@ -17,18 +18,18 @@ class TestCase
       @succeeded = false
       @errored = true
 
-    actualOutputs = runner.run()
+    @actualOutputs = runner.run()
 
     unless @errored
-      if actualOutputs.length != @expectedOutputs.length
+      if @actualOutputs.length != @expectedOutputs.length
         @succeeded = false
       else
-        for actualOutput, idx in actualOutputs
+        for actualOutput, idx in @actualOutputs
           if Math.abs(actualOutput - @expectedOutputs[idx]) >= 0.1
             @succeeded = false
 
       unless @succeeded
-        @message = "Expected #{JSON.stringify(actualOutputs)} " +
+        @message = "Expected #{JSON.stringify(@actualOutputs)} " +
           "to match #{JSON.stringify(@expectedOutputs)}"
 
   setInputs: (@inputs) ->
