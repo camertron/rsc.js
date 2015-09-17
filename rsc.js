@@ -704,12 +704,13 @@
       this.testFunc = testFunc1;
       this.inputs = [];
       this.expectedOutputs = [];
+      this.actualOutputs = null;
       this.succeeded = void 0;
       this.message = '';
     }
 
     TestCase.prototype.run = function() {
-      var actualOutput, actualOutputs, idx, j, len, runner;
+      var actualOutput, idx, j, len, ref, runner;
       this.testFunc(this);
       this.succeeded = true;
       this.errored = false;
@@ -721,20 +722,21 @@
           return _this.errored = true;
         };
       })(this));
-      actualOutputs = runner.run();
+      this.actualOutputs = runner.run();
       if (!this.errored) {
-        if (actualOutputs.length !== this.expectedOutputs.length) {
+        if (this.actualOutputs.length !== this.expectedOutputs.length) {
           this.succeeded = false;
         } else {
-          for (idx = j = 0, len = actualOutputs.length; j < len; idx = ++j) {
-            actualOutput = actualOutputs[idx];
+          ref = this.actualOutputs;
+          for (idx = j = 0, len = ref.length; j < len; idx = ++j) {
+            actualOutput = ref[idx];
             if (Math.abs(actualOutput - this.expectedOutputs[idx]) >= 0.1) {
               this.succeeded = false;
             }
           }
         }
         if (!this.succeeded) {
-          return this.message = ("Expected " + (JSON.stringify(actualOutputs)) + " ") + ("to match " + (JSON.stringify(this.expectedOutputs)));
+          return this.message = ("Expected " + (JSON.stringify(this.actualOutputs)) + " ") + ("to match " + (JSON.stringify(this.expectedOutputs)));
         }
       }
     };
