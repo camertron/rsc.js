@@ -46,11 +46,11 @@
 
 input[type='text'].rsc-input-field {
   height: 25px;
-  padding: 5px;
   font-size: 15px;
   color: #888;
   outline: none;
-  text-transform: uppercase; }
+  text-transform: uppercase;
+  box-sizing: border-box; }
 
 .rsc-button {
   height: 32px;
@@ -154,7 +154,8 @@ input[type='text'].rsc-input-field {
   .rsc-peripherals .rsc-peripheral-keyboard .rsc-input-field {
     border: 1px solid #888;
     margin-left: 5px;
-    margin-top: 10px; }
+    margin-top: 10px;
+    width: 192px; }
 
 .rsc-controls-container {
   float: left; }

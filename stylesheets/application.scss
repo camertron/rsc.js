@@ -60,11 +60,11 @@ $blueColor: #00F;
 
 input[type='text'].rsc-input-field {
   height: 25px;
-  padding: 5px;
   font-size: 15px;
   color: $lightGrayColor;
   outline: none;
   text-transform: uppercase;
+  box-sizing: border-box;
 }
 
 .rsc-button {
